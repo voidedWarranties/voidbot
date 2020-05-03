@@ -1,0 +1,54 @@
+doctype html
+
+-
+    const castDict = {
+        "main character in": "Main Characters",
+        "secondary cast in": "Secondary Cast",
+        "appears in": "Other Appearances",
+        "cameo appearance in": "Cameos"
+    };
+
+mixin characters(anime, cast)
+    - var characters = anime.characters.filter(c => c.cast === cast)
+    if characters.length > 0
+        h4 #{castDict[cast]}
+        each character in characters
+            .character(style="display: block; padding-top: 10px;")
+                img(src=character.photos[0], style="width: 8%;")
+                p(style="display: inline; padding-left: 10px; font-size: 24px;") #{character.name} (#{character.anidb_id[0]})
+
+head
+    title #{anime.title_en} - #{anime.title_jp}
+    link(rel="stylesheet", href="/css/common.css", type="text/css")
+    meta(property="og:title" content=anime.title_en)
+    meta(property="og:image" content=anime.thumbnail)
+
+    style.
+        img {
+            vertical-align: middle;
+        }
+
+        #cover {
+            border-radius: 3%;
+            vertical-align: middle;
+            width: 200px;
+        }
+
+body
+    img#cover(src=anime.thumbnail, alt=anime.title_en)
+    h1(style="display: inline; padding-left: 50px;") #{anime.title_en} • #{anime.title_jp}
+
+    h3 Titles
+
+    each title in anime.titles
+        p #{langs[title.lang]} • <b>#{title.title}</b> • #{title.type}
+    
+    h3 Characters
+
+    +characters(anime, "main character in")
+    
+    +characters(anime, "secondary cast in")
+
+    +characters(anime, "appears in")
+    
+    +characters(anime, "cameo appearance in")

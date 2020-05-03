@@ -1,0 +1,105 @@
+doctype html
+head
+    title Link
+    script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
+    link(rel="stylesheet", href="/css/common.css", type="text/css")
+    style.
+        .center {
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            padding: 10px;
+            border: none;
+            margin: 5px;
+        }
+
+        p {
+            text-align: center;
+        }
+
+        .result {
+            background-color: navy;
+            color: white;
+        }
+
+body
+    include ../partials/header.pug
+    img#photo.center
+    p#info
+    #results.center
+    input#mal-id.center(type="text", placeholder="MAL ID", onkeypress="checkSubmit(event)")
+    button.center(onclick="submitInput()") Submit
+    button.center(onclick="next()") Next
+
+    script.
+        const user = JSON.parse('!{JSON.stringify(user)}');
+
+        var character;
+
+        const img = document.getElementById("photo");
+        const info = document.getElementById("info");
+        const resultsDiv = document.getElementById("results");
+
+        async function next() {
+            const res = await axios.get(`/api/random-incomplete?anime=#{anime.replace("\`", "%60")}`);
+            character = res.data;
+
+            if (character)
+                render(character);
+            else {
+                alert("End of backlog");
+            }
+        }
+
+        next();
+
+        async function render(character) {
+            img.src = character.photos[0];
+            info.innerHTML = `${character.name} from ${character.animes[0].title}`;
+
+            resultsDiv.innerHTML = "";
+
+            const res = await axios.get(`/api/results/${character.name}`);
+
+            const results = res.data;
+
+            if (results.length < 1) {
+                resultsDiv.innerHTML = "No results found";
+            }
+
+            results.forEach(r => {
+                const button = document.createElement("button");
+                button.classList.add("result");
+                button.classList.add("center");
+                button.innerHTML = `<b>${r.name}</b> (${r.mal_id}) from <i>${r.anime.map(a => a.name).slice(0, 6).join(", ")}</i>`;
+                button.onclick = () => {
+                    submit(r.mal_id);
+                    next();
+                };
+                
+                resultsDiv.appendChild(button);
+            });
+        }
+
+        const malInput = document.getElementById("mal-id");
+
+        function checkSubmit(e) {
+            if (e.key === "Enter") {
+                submitInput();
+            }
+        }
+
+        function submitInput() {
+            if (malInput.value === "" || !character) return;
+            submit(malInput.value);
+            malInput.value = "";
+            next();
+        }
+
+        async function submit(mal_id) {
+            return await axios.get(`/api/submit?user=${user.id}&mal_id=${mal_id}&anidb_id=${character.anidb_id[0]}`)
+        }
