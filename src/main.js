@@ -12,7 +12,7 @@ const bot = new Eris.CommandClient(process.env.TOKEN, {
     maxShards: "auto"
 }, {
     description: process.env.DESCRIPTION || "Bot powered by Eris",
-    owner: process.env.OWNER || "somebody",
+    owner: process.env.OWNER_NAME || "somebody",
     prefix: process.env.PREFIX || "!"
 });
 
