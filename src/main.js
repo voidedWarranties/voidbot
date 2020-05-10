@@ -4,6 +4,7 @@ require("eris-additions")(Eris);
 import readdirp from "readdirp";
 import path from "path";
 import "./database/driver";
+import agenda from "./database/agenda";
 import chokidar from "chokidar";
 import hotload from "hotload";
 import { start } from "./web/index";
@@ -16,9 +17,33 @@ const bot = new Eris.CommandClient(process.env.TOKEN, {
     prefix: process.env.PREFIX || "!"
 });
 
-bot.on("ready", () => {
+bot.on("ready", async () => {
     Logger.info(`Bot logged in: @${bot.user.username}#${bot.user.discriminator}`);
     Logger.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${bot.user.id}&scope=bot&permissions=8`);
+
+    agenda.define("unban", async job => {
+        const { guild, user } = job.attrs.data;
+
+        const guildObj = bot.guilds.find(g => g.id === guild);
+        const banned = await guildObj.getBan(user);
+
+        if (!banned) {
+            Logger.debug(`${user} was unbanned. Skipping job`);
+            return;
+        }
+
+        await guildObj.unbanMember(user, "Ban expired");
+
+        Logger.debug(`Unbanned user ${user} from ${guildObj.name}`);
+    });
+
+    await agenda.start();
+});
+
+bot.on("guildBanRemove", (guild, user) => {
+    agenda.cancel({ name: "unban", "data.guild": guild.id, "data.user": user.id });
+
+    Logger.debug(`Cancelling Agenda job for user ${user.username} unbanned in ${guild.name}`);
 });
 
 bot.once("ready", () => start(bot));
