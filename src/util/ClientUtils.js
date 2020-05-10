@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { Mal } from "node-myanimelist";
-import Logger from "./Logger";
+import log from "../logger";
 
 export async function createEmbed(character, image = null) {
     if (image === null) image = Math.floor(Math.random() * character.photos.length);
@@ -22,7 +22,7 @@ export async function addPictures(character) {
         const res = await Mal.character(character.mal_id).pictures();
         const picturesArr = res.data.pictures.map(pic => pic.large ? pic.large : pic.small);
 
-        Logger.debug(`Indexed MAL photos for character ${character.name}`);
+        log.debug(`Indexed MAL photos for character ${character.name}`);
 
         character.mal_cache = Date.now();
         character.mal_photos = character.mal_photos.concat(picturesArr.filter(p => !character.mal_photos.includes(p)));

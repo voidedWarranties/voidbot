@@ -1,7 +1,7 @@
 import Character from "../../../database/models/Character";
 import Anime from "../../../database/models/Anime";
 import path from "path";
-import Logger from "../../../util/Logger";
+import log from "../../../logger";
 import Command from "../../Command";
 import fs from "fs";
 
@@ -39,7 +39,7 @@ function addAnime(data, characterIds) {
         characters: characterIds,
         thumbnail: `https://cdn.anidb.net/images/main/${data.picture}`
     }, { upsert: true, new: true }, (err, doc) => {
-        Logger.debug(`Populated anime ${doc.titles.find(t => t.type === "main").title}`);
+        log.debug(`Populated anime ${doc.titles.find(t => t.type === "main").title}`);
     });
 }
 
@@ -89,7 +89,7 @@ export default class CacheDBCommand extends Command {
 
                 const doc = await Character.findOneAndUpdate({ anidb_id }, newData, { upsert: true, new: true });
 
-                Logger.debug(`Populated DB entry for character ${doc.name}`);
+                log.debug(`Populated DB entry for character ${doc.name}`);
 
                 changed++;
             }

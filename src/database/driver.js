@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Logger from "../util/Logger";
+import log from "../logger";
 
 const uri = process.env.MONGO_URI || "mongodb://localhost/voidbot";
 mongoose.connect(uri, {
@@ -11,7 +11,7 @@ mongoose.connect(uri, {
 const db = mongoose.connection;
 
 db.once("open", () => {
-    Logger.info(`MongoDB connected to URI ${uri}`);
+    log.info(`MongoDB connected to URI ${uri}`);
 });
 
 export default db;

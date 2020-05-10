@@ -1,4 +1,4 @@
-import Logger from "../util/Logger";
+import log from "../logger";
 
 export async function run(job, bot) {
     const { guild, user } = job.attrs.data;
@@ -7,13 +7,13 @@ export async function run(job, bot) {
     const banned = await guildObj.getBan(user);
 
     if (!banned) {
-        Logger.debug(`${user} was unbanned. Skipping job`);
+        log.debug(`${user} was unbanned. Skipping job`);
         return;
     }
 
     await guildObj.unbanMember(user, "Ban expired");
 
-    Logger.debug(`Unbanned user ${user} from ${guildObj.name}`);
+    log.debug(`Unbanned user ${user} from ${guildObj.name}`);
 };
 
 export const name = "unban";

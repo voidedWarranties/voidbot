@@ -1,7 +1,7 @@
 import elasticlunr from "elasticlunr";
 import fs from "fs";
 import { Parser as XmlParser } from "xml2js";
-import Logger from "./Logger";
+import log from "../logger";
 import path from "path";
 import { titlePriority } from "./Constants";
 
@@ -39,7 +39,7 @@ fs.readFile(dumpPath, (err, data) => {
                 id: e.$.aid
             });
         });
-        Logger.info("Parsed AniDB dump");
+        log.info("Parsed AniDB dump");
     });
 });
 

@@ -1,4 +1,4 @@
-import Logger from "./util/Logger";
+import log from "./logger";
 import Eris from "eris";
 require("eris-additions")(Eris);
 import BotClient from "./internals/BotClient";
@@ -28,7 +28,7 @@ bot.once("ready", async () => {
 
         agenda.define(name, job => run(job, bot));
 
-        Logger.debug(`Defined agenda job ${name}`);
+        log.debug(`Defined agenda job ${name}`);
     }
 
     await agenda.start();

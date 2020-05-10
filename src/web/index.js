@@ -1,5 +1,5 @@
 import express from "express";
-import Logger from "../util/Logger";
+import log from "../logger";
 import path from "path";
 import session from "express-session";
 import mongoStore from "connect-mongo";
@@ -117,6 +117,6 @@ export async function start(bot) {
     });
 
     app.listen(port, () => {
-        Logger.info(`Express listening on port ${port}`);
+        log.info(`Express listening on port ${port}`);
     });
 }

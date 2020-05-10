@@ -1,6 +1,6 @@
 import Agenda from "agenda";
 import db from "./driver";
-import Logger from "../util/Logger";
+import log from "../logger";
 
 const agenda = new Agenda({ mongo: db });
 
@@ -8,7 +8,7 @@ agenda.cancel({ nextRunAt: null });
 
 async function graceful() {
     await agenda.stop();
-    Logger.info("Agenda stopped gracefully. Continuing exit");
+    log.info("Agenda stopped gracefully. Continuing exit");
     process.exit();
 }
 

@@ -2,7 +2,7 @@ import Eris from "eris";
 import hotload from "hotload";
 import path from "path";
 import chokidar from "chokidar";
-import Logger from "../util/Logger";
+import log from "../logger";
 import readdirp from "readdirp";
 
 export default class BotClient extends Eris.CommandClient {
@@ -16,7 +16,7 @@ export default class BotClient extends Eris.CommandClient {
             this.require = hotload;
 
             chokidar.watch(this.commandDir).on("change", path => {
-                Logger.info(`Detected change in ${path}, reloading commands`);
+                log.info(`Detected change in ${path}, reloading commands`);
 
                 this.commands = {};
                 this.commandAliases = {};
@@ -31,8 +31,8 @@ export default class BotClient extends Eris.CommandClient {
         this.loadEvents();
 
         this.on("ready", () => {
-            Logger.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
-            Logger.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=8`);
+            log.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
+            log.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=8`);
         });
     }
 
@@ -44,7 +44,7 @@ export default class BotClient extends Eris.CommandClient {
 
             for (const event of events) {
                 this.on(event.name, event.run);
-                Logger.debug(`Registered event ${event.name} in ${entryPath}`);
+                log.debug(`Registered event ${event.name} in ${entryPath}`);
             }
         }
     }
@@ -57,7 +57,7 @@ export default class BotClient extends Eris.CommandClient {
             const commandInstance = new Command(this);
             if (commandInstance.label && commandInstance.generator) {
                 const registered = this.registerCommand(commandInstance.label, commandInstance.generator, commandInstance.erisOptions);
-                Logger.debug(`Registered command ${commandInstance.label} in ${path}`);
+                log.debug(`Registered command ${commandInstance.label} in ${path}`);
 
                 if (commandInstance.subCommands) {
                     commandInstance.subCommands.forEach(subCommand => {
