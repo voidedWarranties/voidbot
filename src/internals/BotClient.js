@@ -4,6 +4,7 @@ import path from "path";
 import chokidar from "chokidar";
 import log from "../logger";
 import readdirp from "readdirp";
+import agenda from "../database/agenda";
 
 export default class BotClient extends Eris.CommandClient {
     constructor(token, options, commandOptions) {
@@ -11,6 +12,9 @@ export default class BotClient extends Eris.CommandClient {
 
         this.commandDir = path.join(__dirname, "../commands");
         this.eventDir = path.join(__dirname, "../events");
+        this.jobDir = path.join(__dirname, "../jobs");
+
+        this.agenda = agenda;
 
         if (process.env.NODE_ENV === "development") {
             this.require = hotload;
@@ -33,6 +37,8 @@ export default class BotClient extends Eris.CommandClient {
         this.on("ready", () => {
             log.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
             log.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=8`);
+
+            this.loadJobs();
         });
     }
 
@@ -47,6 +53,20 @@ export default class BotClient extends Eris.CommandClient {
                 log.debug(`Registered event ${event.name} in ${entryPath}`);
             }
         }
+    }
+
+    async loadJobs() {
+        for await (const entry of readdirp(this.jobDir, { fileFilter: "*.js" })) {
+            const entryPath = path.join(this.jobDir, entry.path);
+    
+            const { run, name } = require(entryPath);
+    
+            this.agenda.define(name, job => run(job, this));
+    
+            log.debug(`Defined agenda job ${name}`);
+        }
+
+        await this.agenda.start();
     }
 
     loadCommand(path) {

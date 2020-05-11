@@ -1,7 +1,6 @@
 import Command from "../Command";
 import timestring from "timestring";
 import { parseUser } from "../../util/ClientUtils";
-import agenda from "../../database/agenda";
 
 export default class BanCommand extends Command {
     constructor(bot) {
@@ -39,7 +38,7 @@ export default class BanCommand extends Command {
             return "No permissions";
         }
 
-        if (time) agenda.schedule(Date.now() + time, "unban", { guild: msg.guildID, user: targetUser.id });
+        if (time) this.bot.agenda.schedule(Date.now() + time, "unban", { guild: msg.guildID, user: targetUser.id });
 
         return `Banned user ${targetUser.username}`;
     }

@@ -1,7 +1,6 @@
 import log from "../logger";
 import * as AudioMixer from "audio-mixer";
 import fs from "fs";
-import now from "performance-now";
 
 // https://pastebin.com/FWQ3L1nU
 
@@ -26,11 +25,7 @@ export default class RecordingManager {
             this.recordings[guild] = {};
             const pcmPackets = this.recordings[guild];
 
-            var startTS;
-
             stream.on("data", (data, userID, timestamp) => {
-                if (!startTS) startTS = now();
-
                 if (!pcmPackets[userID]) pcmPackets[userID] = [];
 
                 pcmPackets[userID].push({
