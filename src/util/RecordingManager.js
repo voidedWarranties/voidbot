@@ -1,6 +1,8 @@
 import log from "../logger";
 import * as AudioMixer from "audio-mixer";
 import fs from "fs";
+import wavConverter from "wav-converter";
+import Minizip from "minizip-asm.js";
 
 // https://pastebin.com/FWQ3L1nU
 
@@ -37,19 +39,20 @@ export default class RecordingManager {
 
             connection.on("error", err => {
                 log.warn(`Voice connection error: ${err.message}`);
-                this.bot.closeVoiceConnection(guild);
+                this.reset(guild);
             });
         });
     }
 
-    stopRecording(guild) {
-        this.bot.closeVoiceConnection(guild);
-
+    async stopRecording(guild, password = "asdf") {
         const mixer = new AudioMixer.Mixer({
             channels: this.channels,
             bitDepth: this.bitDepth,
             sampleRate: this.sampleRate
         });
+
+        const mz = new Minizip();
+        const mzOpts = { password };
 
         const pcmPackets = this.recordings[guild];
 
@@ -60,24 +63,74 @@ export default class RecordingManager {
                 volume: 100
             });
 
-            for (const idx in userData) {
-                const data = userData[idx];
-                const lastData = userData[idx - 1];
+            var bufArray = this._insertSilence(userData);
 
-                if (lastData) {
-                    const diff = data.timestamp - lastData.timestamp - data.duration;
-
-                    if (diff > 0) {
-                        userInput.write(Buffer.alloc(this.bytesPerMs * diff));
-                    }
-                }
-
-                userInput.write(data.data);
+            for (const data of bufArray) {
+                userInput.write(data);
             }
 
-            mixer.pipe(fs.createWriteStream("data.pcm"));
+            const fileBuf = Buffer.concat(bufArray);
+
+            mz.append(`users/${key}.wav`, this._encodeWav(fileBuf), mzOpts);
         }
 
+        const mixedBuf = await this._streamToBuffer(mixer);
+
+        mz.append("mixed.wav", this._encodeWav(mixedBuf), mzOpts);
+
+        fs.writeFileSync("recording.zip", mz.zip());
+
+        this.reset(guild);
+    }
+
+
+    reset(guild) {
+        this.bot.closeVoiceConnection(guild);
         delete this.recordings[guild];
+    }
+
+    _encodeWav(buffer) {
+        return wavConverter.encodeWav(buffer, {
+            numChannels: this.channels,
+            sampleRate: this.sampleRate,
+            byteRate: this.bitDepth / 8
+        });
+    }
+
+    _streamToBuffer(stream) {
+        return new Promise(resolve => {
+            const bufArray = [];
+
+            stream.on("readable", () => {
+                let chunk;
+
+                while ((chunk = stream.read()) !== null) {
+                    bufArray.push(chunk);
+                }
+
+                resolve(Buffer.concat(bufArray));
+            });
+        });
+    }
+
+    _insertSilence(data) {
+        const bufArray = [];
+
+        for (const idx in data) {
+            const packet = data[idx];
+            const lastPacket = data[idx - 1];
+
+            if (lastPacket) {
+                const diff = packet.timestamp - lastPacket.timestamp - packet.duration;
+
+                if (diff > 0) {
+                    bufArray.push(Buffer.alloc(this.bytesPerMs * diff));
+                }
+            }
+
+            bufArray.push(packet.data);
+        }
+
+        return bufArray;
     }
 }

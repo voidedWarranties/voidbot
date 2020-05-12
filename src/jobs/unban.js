@@ -14,6 +14,6 @@ export async function run(job, bot) {
     await guildObj.unbanMember(user, "Ban expired");
 
     log.debug(`Unbanned user ${user} from ${guildObj.name}`);
-};
+}
 
 export const name = "unban";
