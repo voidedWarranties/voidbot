@@ -28,6 +28,7 @@
     "events": "^3.1.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "fs-extra": "^9.0.0",
     "hotload": "^0.0.5",
     "minizip-asm.js": "^1.0.10",
     "mongoose": "^5.9.10",

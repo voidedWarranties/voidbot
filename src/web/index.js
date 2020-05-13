@@ -42,6 +42,7 @@ export async function start(bot) {
     app.use(passport.session());
 
     app.use(express.static(path.join(__dirname, "static")));
+    app.use("/file", express.static(path.join(__dirname, "../../cdn")));
 
     app.set("view engine", "pug");
     app.set("views", path.join(__dirname, "views"));

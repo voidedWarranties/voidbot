@@ -5,6 +5,8 @@ import chokidar from "chokidar";
 import log from "../logger";
 import readdirp from "readdirp";
 import agenda from "../database/agenda";
+import RecordingManager from "./RecordingManager";
+import CDNManager from "./CDNManager";
 
 export default class BotClient extends Eris.CommandClient {
     constructor(token, options, commandOptions) {
@@ -40,6 +42,9 @@ export default class BotClient extends Eris.CommandClient {
 
             this.loadJobs();
         });
+
+        this.recordingManager = new RecordingManager(this);
+        this.cdn = new CDNManager();
     }
 
     async loadEvents() {

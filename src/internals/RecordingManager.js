@@ -39,12 +39,16 @@ export default class RecordingManager {
 
             connection.on("error", err => {
                 log.warn(`Voice connection error: ${err.message}`);
+                
+                this.bot.closeVoiceConnection(guild);
                 this.reset(guild);
             });
         });
     }
 
-    async stopRecording(guild, password = "asdf") {
+    async stopRecording(guild, password) {
+        this.bot.closeVoiceConnection(guild);
+
         const mixer = new AudioMixer.Mixer({
             channels: this.channels,
             bitDepth: this.bitDepth,
@@ -78,14 +82,13 @@ export default class RecordingManager {
 
         mz.append("mixed.wav", this._encodeWav(mixedBuf), mzOpts);
 
-        fs.writeFileSync("recording.zip", mz.zip());
-
         this.reset(guild);
+
+        return mz.zip();
     }
 
 
     reset(guild) {
-        this.bot.closeVoiceConnection(guild);
         delete this.recordings[guild];
     }
 
