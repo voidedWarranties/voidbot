@@ -26,10 +26,15 @@ export default class RecordingManager {
             this.recordings[guild] = {};
             const pcmPackets = this.recordings[guild];
 
-            stream.on("data", (data, userID, timestamp) => {
-                if (!pcmPackets[userID]) pcmPackets[userID] = [];
+            const startTS = Date.now();
 
-                pcmPackets[userID].push({
+            stream.on("data", (data, userID, timestamp) => {
+                if (!pcmPackets[userID]) pcmPackets[userID] = {
+                    offset: Date.now() - startTS,
+                    data: []
+                };
+
+                pcmPackets[userID].data.push({
                     timestamp: timestamp / 48,
                     data,
                     duration: data.length / this.bytesPerMs
@@ -38,7 +43,7 @@ export default class RecordingManager {
 
             connection.on("error", err => {
                 log.warn(`Voice connection error: ${err.message}`);
-                
+
                 this.bot.closeVoiceConnection(guild);
                 this.reset(guild);
             });
@@ -59,22 +64,34 @@ export default class RecordingManager {
 
         const pcmPackets = this.recordings[guild];
 
-        for (const key of Object.keys(pcmPackets)) {
-            const userData = pcmPackets[key];
+        var processedPackets = [];
+
+        for (const [key, value] of Object.entries(pcmPackets)) {
+            processedPackets.push({
+                user: key,
+                data: this._insertSilence(value)
+            });
+        }
+
+        const maxLength = Math.max(...processedPackets.map(({ user, data }) => data.length));
+
+        processedPackets = processedPackets.map(({ user, data }) => {
+            const lengthDiff = maxLength - data.length;
+
+            if (lengthDiff > 0) data = Buffer.concat([data, Buffer.alloc(lengthDiff)]);
+            
+            return { user, data };
+        });
+
+        for (var { user, data } of processedPackets) {
             const userInput = mixer.input({
                 channels: 2,
                 volume: 100
             });
 
-            var bufArray = this._insertSilence(userData);
+            userInput.write(data);
 
-            for (const data of bufArray) {
-                userInput.write(data);
-            }
-
-            const fileBuf = Buffer.concat(bufArray);
-
-            mz.append(`users/${key}.wav`, this._encodeWav(fileBuf), mzOpts);
+            mz.append(`users/${user}.wav`, this._encodeWav(data), mzOpts);
         }
 
         const mixedBuf = await this._streamToBuffer(mixer);
@@ -116,11 +133,13 @@ export default class RecordingManager {
     }
 
     _insertSilence(data) {
-        const bufArray = [];
+        const bufArray = [
+            Buffer.alloc(this.bytesPerMs * data.offset)
+        ];
 
-        for (const idx in data) {
-            const packet = data[idx];
-            const lastPacket = data[idx - 1];
+        for (const idx in data.data) {
+            const packet = data.data[idx];
+            const lastPacket = data.data[idx - 1];
 
             if (lastPacket) {
                 const diff = packet.timestamp - lastPacket.timestamp - packet.duration;
@@ -133,6 +152,6 @@ export default class RecordingManager {
             bufArray.push(packet.data);
         }
 
-        return bufArray;
+        return Buffer.concat(bufArray);
     }
 }

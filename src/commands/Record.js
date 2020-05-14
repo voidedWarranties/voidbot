@@ -33,7 +33,8 @@ The recordings cannot be recovered if the password is lost.
 
                         channel.createMessage(`Your recording is now available here: ${url}`);
                     }
-                }).catch(() => {
+                }).catch((err) => {
+                    console.log(err);
                     msg.channel.createMessage("Failed to send password request DM. Please make sure your DMs are open.");
                 });
             });
