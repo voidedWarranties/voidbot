@@ -22,7 +22,7 @@ The bot maintainers pledge not to store these passwords or access your recording
 For additional safety, delete the message containing your password after sending it.
 
 The recordings cannot be recovered if the password is lost.
-                `).then(async message => {
+                `).then(async () => {
                     const responses = await channel.awaitMessages(m => m.author.id === msg.author.id, { time: 120000, maxMatches: 1 });
 
                     if (responses.length) {
@@ -33,8 +33,7 @@ The recordings cannot be recovered if the password is lost.
 
                         channel.createMessage(`Your recording is now available here: ${url}`);
                     }
-                }).catch(err => {
-                    console.log(err);
+                }).catch(() => {
                     msg.channel.createMessage("Failed to send password request DM. Please make sure your DMs are open.");
                 });
             });

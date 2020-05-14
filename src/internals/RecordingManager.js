@@ -1,6 +1,5 @@
 import log from "../logger";
 import * as AudioMixer from "audio-mixer";
-import fs from "fs";
 import wavConverter from "wav-converter";
 import Minizip from "minizip-asm.js";
 

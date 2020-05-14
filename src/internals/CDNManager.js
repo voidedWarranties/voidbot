@@ -31,6 +31,23 @@ class Endpoint {
             fs.writeFileSync(filePath, data);
         }
 
-        return `${process.env.HOST_URL}/file/${this.name}/${fileName}`;
+        return this.get(fileName);
+    }
+
+    exists(fileName) {
+        try {
+            fs.accessSync(this.getPath(fileName), fs.constants.F_OK);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    getPath(fileName) {
+        return path.join(this.path, fileName);
+    }
+
+    get(fileName) {
+        return(`${process.env.HOST_URL}/file/${this.name}/${fileName}`);
     }
 }

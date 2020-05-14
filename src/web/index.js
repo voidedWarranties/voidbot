@@ -117,6 +117,15 @@ export async function start(bot) {
         });
     });
 
+    app.get("/recording/:filename", (req, res) => {
+        if (!bot.cdn.endpoints.recording.exists(req.params.filename)) return res.writeHead(404);
+
+        res.render("recording", {
+            file: req.params.filename,
+            fileURL: bot.cdn.endpoints.recording.get(req.params.filename)
+        });
+    });
+
     app.listen(port, () => {
         log.info(`Express listening on port ${port}`);
     });
