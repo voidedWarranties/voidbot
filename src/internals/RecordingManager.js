@@ -73,7 +73,7 @@ export default class RecordingManager {
             });
         }
 
-        const maxLength = Math.max(...processedPackets.map(({ user, data }) => data.length));
+        const maxLength = Math.max(...processedPackets.map(({ data }) => data.length));
 
         processedPackets = processedPackets.map(({ user, data }) => {
             const lengthDiff = maxLength - data.length;
