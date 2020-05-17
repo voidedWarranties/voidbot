@@ -1,22 +1,29 @@
 import index from "../../util/AnititleSearch";
-import Command from "../Command";
+import { Command } from "karasu";
 import Anime from "../../database/models/Anime";
 
 export default class SearchCommand extends Command {
     constructor(bot) {
-        super(bot, "search", {}, {}, [
-            new IndexedCommand(bot)
-        ]);
+        super(bot, "search", {
+            subCommands: [
+                new IndexedCommand(bot)
+            ],
+            category: "anime"
+        });
     }
 
-    exec(msg, args) {
-        if (args.length < 1) return "Not enough arguments";
+    run(msg, args) {
+        if (args.length < 1) {
+            return "Not enough arguments";
+        }
 
         const query = args.join(" ");
 
         var results = index.search(query, {}).slice(0, 3);
 
-        if (results.length < 1) return "No results found";
+        if (results.length < 1) {
+            return "No results found";
+        }
 
         results = results.map((r, idx) => {
             const titleObj = index.documentStore.getDoc(r.ref).titleObj;
@@ -25,9 +32,9 @@ export default class SearchCommand extends Command {
         });
 
 
-        return `
+        msg.channel.createMessage(`
 ${results.join("\n")}
-        `;
+        `);
     }
 }
 
@@ -35,14 +42,14 @@ function getEmoji(character) {
     var emoji;
 
     switch (character.gender) {
-    case "male":
-        emoji = ":male_sign:";
-        break;
-    case "female":
-        emoji = ":female_sign:";
-        break;
-    default:
-        emoji = ":grey_question:";
+        case "male":
+            emoji = ":male_sign:";
+            break;
+        case "female":
+            emoji = ":female_sign:";
+            break;
+        default:
+            emoji = ":grey_question:";
     }
 
     return emoji;
@@ -63,7 +70,7 @@ class IndexedCommand extends Command {
         });
     }
 
-    async exec(msg, args) {
+    async run(msg, args) {
         if (args.length < 1) return "Not enough arguments";
 
         const query = args.join(" ");

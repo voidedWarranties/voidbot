@@ -1,13 +1,15 @@
 import Character from "../../database/models/Character";
-import Command from "../Command";
+import { Command } from "karasu";
 import { createEmbed, addPictures } from "../../util/ClientUtils";
 
 export default class RandomCommand extends Command {
     constructor(bot) {
-        super(bot, "random");
+        super(bot, "random", {
+            category: "anime"
+        });
     }
 
-    async exec(msg) {
+    async run(msg) {
         var character = await Character.random({ gender: "female" });
         character = await addPictures(character);
 

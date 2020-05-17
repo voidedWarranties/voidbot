@@ -2,10 +2,10 @@ import Character from "../../../database/models/Character";
 import Anime from "../../../database/models/Anime";
 import path from "path";
 import log from "../../../logger";
-import Command from "../../Command";
+import { Command } from "karasu";
 import fs from "fs";
 
-const cacheDir = path.join(__dirname, "../../../cache");
+const cacheDir = path.join(__dirname, "../../../../cache");
 
 async function* iterateCache(fileFilter = "*.json") {
     var files = fs.readdirSync(cacheDir);
@@ -45,14 +45,15 @@ function addAnime(data, characterIds) {
 
 export default class CacheDBCommand extends Command {
     constructor(bot) {
-        super(bot, "cachedb", {}, {
-            ownerOnly: true
-        }, [
-            new AnimesCommand(bot)
-        ]);
+        super(bot, "cachedb", {
+            subCommands: [
+                new AnimesCommand(bot)
+            ],
+            category: "anime"
+        });
     }
 
-    async exec(msg, args) {
+    async run(msg, args) {
         var changed = 0;
 
         for await (const data of iterateCache(
@@ -101,12 +102,12 @@ export default class CacheDBCommand extends Command {
 
 class AnimesCommand extends Command {
     constructor(bot) {
-        super(bot, "anime", {}, {
+        super(bot, "anime", {
             ownerOnly: true
         });
     }
 
-    async exec(msg) {
+    async run(msg) {
         var created = 0;
         for await (const data of iterateCache()) {
             const characters = await Character.find({ "animes.id": data.id });

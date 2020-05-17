@@ -1,15 +1,33 @@
-import Eris from "eris";
-require("eris-additions")(Eris);
 import BotClient from "./internals/BotClient";
 import "./database/driver";
 import { start } from "./web/index";
+import log from "./logger";
 
 const bot = new BotClient(process.env.TOKEN, {
     maxShards: "auto"
 }, {
-    description: process.env.DESCRIPTION || "Bot powered by Eris",
-    owner: process.env.OWNER_NAME || "somebody",
-    prefix: process.env.PREFIX || "!"
+    owner: process.env.OWNER,
+    prefix: process.env.PREFIX || "!",
+    development: process.env.NODE_ENV === "development",
+    defaultCommands: true,
+    categories: [
+        {
+            id: "anime",
+            title: "Anime",
+            description: "Weeb"
+        },
+        {
+            id: "moderation",
+            title: "Moderation",
+            description: "Moderate your members"
+        },
+        {
+            id: "util",
+            title: "Utilities",
+            description: "Other commands"
+        }
+    ],
+    logger: log
 });
 
 bot.once("ready", async () => {

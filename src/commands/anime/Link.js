@@ -1,35 +1,37 @@
 import Character from "../../database/models/Character";
 import Submission from "../../database/models/Submission";
-import Command from "../Command";
+import { Command } from "karasu";
 import fs from "fs";
 import path from "path";
-import hotload from "hotload";
 
 export default class LinkCommand extends Command {
     constructor(bot) {
-        super(bot, "link", {}, {}, [
-            new VerifyCommand(bot),
-            new DumpCommand(bot),
-            new LoadCommand(bot)
-        ]);
+        super(bot, "link", {
+            subCommands: [
+                new VerifyCommand(bot),
+                new DumpCommand(bot),
+                new LoadCommand(bot)
+            ],
+            category: "anime"
+        });
     }
 
-    async exec() {
+    run() {
         return `To link characters, visit ${process.env.HOST_URL}/crowdsource`;
     }
 }
 
 class VerifyCommand extends Command {
     constructor(bot) {
-        super(bot, "verify", {}, {
+        super(bot, "verify", {
             ownerOnly: true
         });
     }
 
-    async exec(msg) {
-        for (;;) {
+    async run(msg) {
+        for (; ;) {
             const submission = await Submission.random();
-            if (!submission) return msg.channel.createMessage("Reached end of backlog");
+            if (!submission) return "Reached end of backlog";
             const character = await Character.findOne({ anidb_id: submission.anidb_id });
 
             const user = this.bot.users.find(user => user.id === submission.user_id);
@@ -74,14 +76,16 @@ class VerifyCommand extends Command {
     }
 }
 
+const dumpFile = "../../../cache/dump";
+
 class DumpCommand extends Command {
     constructor(bot) {
-        super(bot, "dump", {}, {
+        super(bot, "dump", {
             ownerOnly: true
         });
     }
 
-    async exec(msg) {
+    async run() {
         const characters = await Character.find({ mal_id: { $exists: true } });
         var links = [];
 
@@ -91,25 +95,27 @@ class DumpCommand extends Command {
         });
 
         const content = `export const links = ${JSON.stringify(links)};`;
-        fs.writeFileSync(path.join(__dirname, "../../../cache/dump.js"), content);
+        fs.writeFileSync(path.join(__dirname, dumpFile), content);
 
-        msg.channel.createMessage(`Wrote ${characters.length} characters to dump`);
+        return `Wrote ${characters.length} characters to dump`;
     }
 }
 
 class LoadCommand extends Command {
     constructor(bot) {
-        super(bot, "load", {}, {
+        super(bot, "load", {
             ownerOnly: true
         });
     }
 
-    async exec(msg) {
-        const { links } = hotload("../../../cache/dump.js");
+    async run() {
+        delete require.cache[require.resolve(dumpFile)];
+        const { links } = require(dumpFile);
+
         for (const link of links) {
             await Character.findOneAndUpdate({ anidb_id: link[0] }, { mal_id: link[1] });
         }
 
-        msg.channel.createMessage(`Linked ${links.length} characters from dump`);
+        return `Linked ${links.length} characters from dump`;
     }
 }

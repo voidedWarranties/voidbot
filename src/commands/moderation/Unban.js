@@ -1,29 +1,28 @@
-import Command from "../Command";
+import { Command } from "karasu";
 
 export default class UnbanCommand extends Command {
     constructor(bot) {
         super(bot, "unban", {
-            permissionMessage: "You must be able to ban somebody to use this!",
-            argsRequired: true,
-            invalidUsageMessage: "Usage: unban <user> <reason>",
-            requirements: {
-                permissions: {
-                    banMembers: true
-                }
-            },
-            guildOnly: true
+            description: "Unban a member.",
+            aliases: ["pardon"],
+            permissions: ["banMembers"],
+            category: "moderation"
         });
     }
 
-    exec(msg, args) {
-        msg.member.guild.getBans().then(async bans => {
+    run(msg, args) {
+        if (args.length < 1) return "Not enough arguments";
+
+        msg.channel.guild.getBans().then(async bans => {
+            const user = args.shift();
+
             const ban = bans.find(ban =>
-                ban.user.id === args[0] ||
-                ban.user.username.toUpperCase() === args[0].toUpperCase()
+                ban.user.id === user ||
+                ban.user.username.toUpperCase() === user.toUpperCase()
             );
 
             if (ban) {
-                const reason = args.slice(1).join(" ");
+                const reason = args.join(" ");
 
                 await msg.member.guild.unbanMember(ban.user.id, reason);
 

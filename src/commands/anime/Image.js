@@ -1,4 +1,4 @@
-import Command from "../Command";
+import { Command } from "karasu";
 import Character from "../../database/models/Character";
 import { createSearchEmbed, ReactionCollector, addPictures } from "../../util/ClientUtils";
 
@@ -10,11 +10,12 @@ const rightArrow = "➡️";
 export default class ImageCommand extends Command {
     constructor(bot) {
         super(bot, "image", {
-            aliases: ["im"]
+            aliases: ["im"],
+            category: "anime"
         });
     }
 
-    exec(msg, args) {
+    run(msg, args) {
         if (args.length < 1) return "Not enough arguments (expected a search query).";
 
         const query = args.join(" ");
@@ -56,42 +57,42 @@ export default class ImageCommand extends Command {
                 var pics = docs[idx].photos.length;
 
                 switch (emoji) {
-                case leftArrow:
-                    if (picIdx !== 0) {
-                        picIdx--;
-                    } else {
-                        picIdx = pics - 1;
-                    }
-                    break;
-                case rightArrow:
-                    if (picIdx !== pics - 1) {
-                        picIdx++;
-                    } else {
+                    case leftArrow:
+                        if (picIdx !== 0) {
+                            picIdx--;
+                        } else {
+                            picIdx = pics - 1;
+                        }
+                        break;
+                    case rightArrow:
+                        if (picIdx !== pics - 1) {
+                            picIdx++;
+                        } else {
+                            picIdx = 0;
+                        }
+                        break;
+                    case seekBack:
+                        if (idx !== 0) {
+                            idx--;
+                        } else {
+                            idx = docs.length - 1;
+                        }
+
                         picIdx = 0;
-                    }
-                    break;
-                case seekBack:
-                    if (idx !== 0) {
-                        idx--;
-                    } else {
-                        idx = docs.length - 1;
-                    }
 
-                    picIdx = 0;
+                        break;
+                    case seekFwd:
+                        if (idx !== docs.length - 1) {
+                            idx++;
+                        } else {
+                            idx = 0;
+                        }
 
-                    break;
-                case seekFwd:
-                    if (idx !== docs.length - 1) {
-                        idx++;
-                    } else {
-                        idx = 0;
-                    }
+                        picIdx = 0;
 
-                    picIdx = 0;
-
-                    break;
-                default:
-                    return;
+                        break;
+                    default:
+                        return;
                 }
 
                 pics = docs[idx].photos.length;

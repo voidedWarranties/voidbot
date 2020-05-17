@@ -1,13 +1,14 @@
-import Command from "./Command";
+import { Command } from "karasu";
 
 export default class RecordCommand extends Command {
     constructor(bot) {
-        super(bot, "record", {}, {
-            ownerOnly: true
+        super(bot, "record", {
+            ownerOnly: true,
+            category: "util"
         });
     }
 
-    exec(msg, args) {
+    run(msg, args) {
         const channel = msg.member.voiceState.channelID;
 
         if (!channel) return "You are not in a voice channel!";
@@ -33,7 +34,7 @@ The recordings cannot be recovered if the password is lost.
 
                         channel.createMessage(`Your recording is now available here: ${url}`);
                     }
-                }).catch((err) => {
+                }).catch(err => {
                     console.log(err);
                     msg.channel.createMessage("Failed to send password request DM. Please make sure your DMs are open.");
                 });

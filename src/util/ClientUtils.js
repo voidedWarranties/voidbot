@@ -36,7 +36,7 @@ export async function createSearchEmbed(docs, idx, image = null, total = 1) {
     var footer = [];
 
     if (total > 1) {
-        footer.push(`Picture ${image + 1} / $0{total}`);
+        footer.push(`Picture ${image + 1} / ${total}`);
     }
 
     if (docs.length > 1) {
@@ -66,33 +66,4 @@ export class ReactionCollector extends EventEmitter {
             this.reset();
         }, time);
     }
-}
-
-export function parseUser(msg, arg) {
-    if (!arg) return;
-
-    const guild = msg.member.guild;
-    const members = guild.members;
-
-    var id;
-
-    if (isNaN(arg)) {
-        const userExp = /<@!?\d+>/;
-
-        if (userExp.test(arg)) {
-            id = arg.replace(/[<@!>]/g, "");
-        } else {
-            const matches = members.filter(m => (m.nick && m.nick.toUpperCase() === arg.toUpperCase()) || m.username.toUpperCase() === arg.toUpperCase());
-
-            if (matches.length === 1) {
-                return matches[0];
-            } else {
-                return;
-            }
-        }
-    } else {
-        id = arg;
-    }
-
-    return members.find(m => m.id === id);
 }

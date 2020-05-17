@@ -1,21 +1,25 @@
 import Character from "../../../database/models/Character";
-import Command from "../../Command";
-import hotload from "hotload";
+import { Command } from "karasu";
+
+const mergeFile = "../../../../cache/merges";
 
 export default class MergeCommand extends Command {
     constructor(bot) {
-        super(bot, "merge", {}, {
-            ownerOnly: true
-        }, [
-            new ScanCommand(bot)
-        ]);
+        super(bot, "merge", {
+            ownerOnly: true,
+            subCommands: [
+                new ScanCommand(bot)
+            ],
+            category: "anime"
+        });
     }
 
-    async exec() {
+    async run() {
         var merged = 0;
         var deleted = 0;
 
-        const { merges } = hotload("../../../cache/merges");
+        delete require.cache[require.resolve(mergeFile)];
+        const { merges } = require(mergeFile);
         for (const merge of merges) {
             var animes = [];
             var ids = [];
@@ -51,15 +55,16 @@ export default class MergeCommand extends Command {
 
 class ScanCommand extends Command {
     constructor(bot) {
-        super(bot, "scan", {}, {
+        super(bot, "scan", {
             ownerOnly: true
         });
     }
 
-    async exec(msg) {
+    async run(msg) {
         const names = await Character.distinct("name", { anidb_id: { $exists: true } });
 
-        const { ignored } = hotload("../../../cache/merges");
+        delete require.cache[require.resolve(mergeFile)];
+        const { ignored } = require(mergeFile);
 
         var merges = [];
         var message = "";

@@ -1,17 +1,20 @@
-import Command from "../../Command";
+import { Command } from "karasu";
 import Character from "../../../database/models/Character";
 import Anime from "../../../database/models/Anime";
-import hotload from "hotload";
+
+const customsFile = "../../../../cache/customs";
 
 export default class CustomsCommand extends Command {
     constructor(bot) {
-        super(bot, "customs", {}, {
-            ownerOnly: true
+        super(bot, "customs", {
+            ownerOnly: true,
+            category: "anime"
         });
     }
 
-    async exec() {
-        const { customs } = hotload("../../../cache/customs");
+    async run() {
+        delete require.cache[require.resolve(customsFile)];
+        const { customs } = require(customsFile);
 
         var characters = 0;
 
