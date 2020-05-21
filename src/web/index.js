@@ -8,6 +8,7 @@ import passport from "passport";
 import Character from "../database/models/Character";
 import Anime from "../database/models/Anime";
 import { langDict } from "../util/Constants";
+import { getInfo, getMethod } from "./ipc";
 
 import api from "./routes/api";
 
@@ -23,110 +24,114 @@ function checkAuth(req, res, next) {
 
 const MongoStore = mongoStore(session);
 
-export async function start(bot) {
-    const app = express();
-    const port = 1337;
+const app = express();
+const port = 1337;
 
-    const store = new MongoStore({
-        mongooseConnection: mongoose.connection
-    });
+const store = new MongoStore({
+    mongooseConnection: mongoose.connection
+});
 
-    app.use(session({
-        secret: "secret secret shhh",
-        resave: false,
-        saveUninitialized: false,
-        store
-    }));
+app.use(session({
+    secret: "secret secret shhh",
+    resave: false,
+    saveUninitialized: false,
+    store
+}));
 
-    app.use(passport.initialize());
-    app.use(passport.session());
+app.use(passport.initialize());
+app.use(passport.session());
 
-    app.use(express.static(path.join(__dirname, "static")));
-    app.use("/file", express.static(path.join(__dirname, "../../cdn")));
+app.use(express.static(path.join(__dirname, "static")));
+app.use("/file", express.static(path.join(__dirname, "../../cdn")));
 
-    app.set("view engine", "pug");
-    app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
 
-    app.locals = {
-        langs: langDict
-    };
+app.locals = {
+    langs: langDict
+};
 
-    app.use("/api", api);
+app.use("/api", api);
 
-    app.get("/", (req, res) => {
+app.get("/", (req, res) => {
+    getInfo("user").then(user => {
         res.render("index", {
             user: req.user,
-            username: bot.user.username
+            username: user.username
         });
     });
+});
 
-    app.get("/login", passport.authenticate("discord"));
+app.get("/login", passport.authenticate("discord"));
 
-    app.get("/login/callback", passport.authenticate("discord", {
-        failureRedirect: "/"
-    }), (req, res) => {
-        res.redirect("/");
+app.get("/login/callback", passport.authenticate("discord", {
+    failureRedirect: "/"
+}), (req, res) => {
+    res.redirect("/");
+});
+
+app.get("/logout", checkAuth, (req, res) => {
+    req.logout();
+    res.redirect("/");
+});
+
+app.get("/crowdsource", checkAuth, async (req, res) => {
+    var animes = await Character.getPendingAnimes();
+
+    res.render("crowdsource", {
+        user: req.user,
+        animes
+    });
+});
+
+app.get("/link", checkAuth, async (req, res) => {
+    res.render("link", {
+        user: req.user,
+        anime: req.query.anime || ""
+    });
+});
+
+app.get("/anime/:type/:id", async (req, res) => {
+    var filter = {};
+
+    switch (req.params.type) {
+    case "anidb":
+        filter.anidb_id = req.params.id;
+        break;
+    case "custom":
+        filter.custom_id = req.params.id;
+        break;
+    default:
+        return res.writeHead(500);
+    }
+
+    var anime = (await Anime.findOne(filter).populate("characters")).toObject();
+
+    if (!anime) res.writeHead(404);
+
+    anime.characters = anime.characters.map(c => {
+        const animeData = c.animes.find(a => a.id === anime.anidb_id);
+        return Object.assign(c, { cast: animeData.cast });
     });
 
-    app.get("/logout", checkAuth, (req, res) => {
-        req.logout();
-        res.redirect("/");
+    res.render("anime", {
+        anime
     });
+});
 
-    app.get("/crowdsource", checkAuth, async (req, res) => {
-        var animes = await Character.getPendingAnimes();
+app.get("/recording/:filename", (req, res) => {
+    getMethod("cdn.endpoints.recording", "exists", [req.params.filename]).then(exists => {
+        if (!exists) return res.writeHead(404);
 
-        res.render("crowdsource", {
-            user: req.user,
-            animes
+        getMethod("cdn.endpoints.recording", "get", [req.params.filename]).then(url => {
+            res.render("recording", {
+                file: req.params.filename,
+                fileURL: url
+            });
         });
     });
+});
 
-    app.get("/link", checkAuth, async (req, res) => {
-        res.render("link", {
-            user: req.user,
-            anime: req.query.anime || ""
-        });
-    });
-
-    app.get("/anime/:type/:id", async (req, res) => {
-        var filter = {};
-
-        switch (req.params.type) {
-        case "anidb":
-            filter.anidb_id = req.params.id;
-            break;
-        case "custom":
-            filter.custom_id = req.params.id;
-            break;
-        default:
-            return res.writeHead(500);
-        }
-
-        var anime = (await Anime.findOne(filter).populate("characters")).toObject();
-
-        if (!anime) res.writeHead(404);
-
-        anime.characters = anime.characters.map(c => {
-            const animeData = c.animes.find(a => a.id === anime.anidb_id);
-            return Object.assign(c, { cast: animeData.cast });
-        });
-
-        res.render("anime", {
-            anime
-        });
-    });
-
-    app.get("/recording/:filename", (req, res) => {
-        if (!bot.cdn.endpoints.recording.exists(req.params.filename)) return res.writeHead(404);
-
-        res.render("recording", {
-            file: req.params.filename,
-            fileURL: bot.cdn.endpoints.recording.get(req.params.filename)
-        });
-    });
-
-    app.listen(port, () => {
-        log.info(`Express listening on port ${port}`);
-    });
-}
+app.listen(port, () => {
+    log.info(`Express listening on port ${port}`);
+});

@@ -8,6 +8,7 @@
     "restart": "pm2 restart ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "dev": "cross-env NODE_ENV=development node index.js",
+    "dev-web": "cross-env NODE_ENV=development node index-web.js",
     "lint": "eslint . --fix"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "karasu": "voidedWarranties/karasu",
     "minizip-asm.js": "^1.0.10",
     "mongoose": "^5.9.14",
+    "node-ipc": "^9.1.1",
     "node-myanimelist": "^2.0.0",
     "passport": "^0.4.1",
     "passport-discord": "^0.1.3",

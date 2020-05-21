@@ -5,6 +5,7 @@ import readdirp from "readdirp";
 import agenda from "../database/agenda";
 import RecordingManager from "./RecordingManager";
 import CDNManager from "./CDNManager";
+import startIPC from "./ipc";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
@@ -20,8 +21,11 @@ export default class BotClient extends Client {
         this.on("ready", () => {
             log.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
             log.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=8`);
+        });
 
+        this.once("ready", () => {
             this.loadJobs();
+            startIPC(this);
         });
 
         this.recordingManager = new RecordingManager(this);

@@ -22,24 +22,25 @@ export default class PrefixCommand extends Command {
         const prefix = args.slice(1).join(" ").replace("\\s", " ");
 
         switch (args[0].toLowerCase()) {
-            case "add":
-                if (args[1]) {
-                    const doc = await addPrefix(guild, prefix);
-                    return `Added prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
-                }
-            case "remove":
-                if (args[1]) {
-                    const doc = await removePrefix(guild, args[1]);
-                    return `Removed prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
-                }
-                break;
-            case "reset":
-                await resetPrefixes(guild);
-                return `Reset prefixes for this guild, now using defaults.`;
-            case "default":
-                return "Invalid operation: use add, remove, or reset";
+        case "add":
+            if (args[1]) {
+                const doc = await addPrefix(guild, prefix);
+                return `Added prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
+            }
+            break;
+        case "remove":
+            if (args[1]) {
+                const doc = await removePrefix(guild, args[1]);
+                return `Removed prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
+            }
+            break;
+        case "reset":
+            await resetPrefixes(guild);
+            return "Reset prefixes for this guild, now using defaults.";
+        case "default":
+            return "Invalid operation: use add, remove, or reset";
         }
 
-        return `Not enough arguments (expected 2)`;
+        return "Not enough arguments (expected 2)";
     }
 }

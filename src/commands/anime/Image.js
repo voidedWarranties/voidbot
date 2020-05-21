@@ -57,42 +57,42 @@ export default class ImageCommand extends Command {
                 var pics = docs[idx].photos.length;
 
                 switch (emoji) {
-                    case leftArrow:
-                        if (picIdx !== 0) {
-                            picIdx--;
-                        } else {
-                            picIdx = pics - 1;
-                        }
-                        break;
-                    case rightArrow:
-                        if (picIdx !== pics - 1) {
-                            picIdx++;
-                        } else {
-                            picIdx = 0;
-                        }
-                        break;
-                    case seekBack:
-                        if (idx !== 0) {
-                            idx--;
-                        } else {
-                            idx = docs.length - 1;
-                        }
-
+                case leftArrow:
+                    if (picIdx !== 0) {
+                        picIdx--;
+                    } else {
+                        picIdx = pics - 1;
+                    }
+                    break;
+                case rightArrow:
+                    if (picIdx !== pics - 1) {
+                        picIdx++;
+                    } else {
                         picIdx = 0;
+                    }
+                    break;
+                case seekBack:
+                    if (idx !== 0) {
+                        idx--;
+                    } else {
+                        idx = docs.length - 1;
+                    }
 
-                        break;
-                    case seekFwd:
-                        if (idx !== docs.length - 1) {
-                            idx++;
-                        } else {
-                            idx = 0;
-                        }
+                    picIdx = 0;
 
-                        picIdx = 0;
+                    break;
+                case seekFwd:
+                    if (idx !== docs.length - 1) {
+                        idx++;
+                    } else {
+                        idx = 0;
+                    }
 
-                        break;
-                    default:
-                        return;
+                    picIdx = 0;
+
+                    break;
+                default:
+                    return;
                 }
 
                 pics = docs[idx].photos.length;

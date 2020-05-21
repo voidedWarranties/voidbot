@@ -3,6 +3,10 @@ module.exports = {
         {
             name: "bot",
             script: "./index.js"
+        },
+        {
+            name: "web",
+            script: "./index-web.js"
         }
     ]
-}
+};

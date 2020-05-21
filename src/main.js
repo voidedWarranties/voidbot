@@ -1,6 +1,5 @@
 import BotClient from "./internals/BotClient";
 import "./database/driver";
-import { start } from "./web/index";
 import log from "./logger";
 import Guild from "./database/models/Guild";
 
@@ -45,10 +44,6 @@ const bot = new BotClient(process.env.TOKEN, {
         }
     ],
     logger: log
-});
-
-bot.once("ready", async () => {
-    start(bot);
 });
 
 bot.connect();

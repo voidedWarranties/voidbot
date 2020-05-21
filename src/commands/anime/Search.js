@@ -42,14 +42,14 @@ function getEmoji(character) {
     var emoji;
 
     switch (character.gender) {
-        case "male":
-            emoji = ":male_sign:";
-            break;
-        case "female":
-            emoji = ":female_sign:";
-            break;
-        default:
-            emoji = ":grey_question:";
+    case "male":
+        emoji = ":male_sign:";
+        break;
+    case "female":
+        emoji = ":female_sign:";
+        break;
+    default:
+        emoji = ":grey_question:";
     }
 
     return emoji;
