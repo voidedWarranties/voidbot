@@ -14,18 +14,29 @@ export default class BanCommand extends Command {
                     type: "time",
                     name: "duration",
                     optional: true
+                },
+                {
+                    type: "number",
+                    name: "purge",
+                    optional: true
                 }
             ],
-            category: "moderation"
+            category: "moderation",
+            usages: [
+                "ban <user> <duration> (purgeDays) (reason)"
+            ]
         });
     }
 
     async run(msg, args, parsed) {
         const reason = args.join(" ");
 
+        if (parsed[2] && parsed[2] < 0 || parsed[2] > 7) return "Purge duration must be 0-7 days"
+
         try {
-            await parsed[0].ban(0, reason);
+            await parsed[0].ban(parsed[2] || 0, reason);
         } catch (e) {
+            console.log(e);
             return "No permissions";
         }
 
