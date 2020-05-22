@@ -7,18 +7,27 @@ import mongoose from "mongoose";
 import passport from "passport";
 import Character from "../database/models/Character";
 import Anime from "../database/models/Anime";
-import { langDict } from "../util/Constants";
 import { getInfo, getMethod } from "./ipc";
+import nuxtConfig from "../../nuxt.config";
+import { Nuxt, Builder } from "nuxt";
+import "../database/driver";
 
 import api from "./routes/api";
 
 import "./passport";
 
-function checkAuth(req, res, next) {
+function checkAuth(req, res) {
     if (req.user) {
-        next();
+        return true;
     } else {
         res.redirect("/");
+        return false;
+    }
+}
+
+function checkAuthMiddleware(req, res, next) {
+    if (checkAuth(req, res)) {
+        next();
     }
 }
 
@@ -41,57 +50,41 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static(path.join(__dirname, "static")));
 app.use("/file", express.static(path.join(__dirname, "../../cdn")));
 
-app.set("view engine", "pug");
-app.set("views", path.join(__dirname, "views"));
+nuxtConfig.dev = process.env.NODE_ENV === "development";
 
-app.locals = {
-    langs: langDict
-};
+const nuxt = new Nuxt(nuxtConfig);
 
-app.use("/api", api);
+if (nuxtConfig.dev) {
+    const builder = new Builder(nuxt);
+    builder.build();
+}
 
-app.get("/", (req, res) => {
-    getInfo("user").then(user => {
-        res.render("index", {
-            user: req.user,
-            username: user.username
-        });
+async function vueMiddleware(req, res, next, auth, locals) {
+    if (auth && !checkAuth(req, res)) return;
+
+    res.locals = locals;
+
+    next();
+}
+
+app.use("/", async (req, res, next) => {
+    const user = await getInfo("user");
+    const invite = await getInfo("invite");
+
+    vueMiddleware(req, res, next, false, { user, invite });
+});
+
+app.use("/crowdsource", (req, res, next) => {
+    vueMiddleware(req, res, next, true, async () => {
+        return await Character.getPendingAnimes();
     });
 });
 
-app.get("/login", passport.authenticate("discord"));
+app.use("/link", checkAuthMiddleware);
 
-app.get("/login/callback", passport.authenticate("discord", {
-    failureRedirect: "/"
-}), (req, res) => {
-    res.redirect("/");
-});
-
-app.get("/logout", checkAuth, (req, res) => {
-    req.logout();
-    res.redirect("/");
-});
-
-app.get("/crowdsource", checkAuth, async (req, res) => {
-    var animes = await Character.getPendingAnimes();
-
-    res.render("crowdsource", {
-        user: req.user,
-        animes
-    });
-});
-
-app.get("/link", checkAuth, async (req, res) => {
-    res.render("link", {
-        user: req.user,
-        anime: req.query.anime || ""
-    });
-});
-
-app.get("/anime/:type/:id", async (req, res) => {
+app.use("/anime/:type/:id", async (req, res, next) => {
     var filter = {};
 
     switch (req.params.type) {
@@ -113,24 +106,34 @@ app.get("/anime/:type/:id", async (req, res) => {
         const animeData = c.animes.find(a => a.id === anime.anidb_id);
         return Object.assign(c, { cast: animeData.cast });
     });
-
-    res.render("anime", {
-        anime
-    });
+    vueMiddleware(req, res, next, false, { anime });
 });
 
-app.get("/recording/:filename", (req, res) => {
-    getMethod("cdn.endpoints.recording", "exists", [req.params.filename]).then(exists => {
-        if (!exists) return res.writeHead(404);
+app.use("/recording/:filename", async (req, res, next) => {
+    const exists = await getMethod("cdn.endpoints.recording", "exists", [req.params.filename]);
+    if (!exists) return res.writeHead(404);
 
-        getMethod("cdn.endpoints.recording", "get", [req.params.filename]).then(url => {
-            res.render("recording", {
-                file: req.params.filename,
-                fileURL: url
-            });
-        });
-    });
+    const url = await getMethod("cdn.endpoints.recording", "get", [req.params.filename]);
+
+    vueMiddleware(req, res, next, false, { fileURL: url });
 });
+
+app.use("/api", api);
+
+app.get("/login", passport.authenticate("discord"));
+
+app.get("/login/callback", passport.authenticate("discord", {
+    failureRedirect: "/"
+}), (req, res) => {
+    res.redirect("/");
+});
+
+app.get("/logout", checkAuth, (req, res) => {
+    req.logout();
+    res.redirect("/");
+});
+
+app.use(nuxt.render);
 
 app.listen(port, () => {
     log.info(`Express listening on port ${port}`);

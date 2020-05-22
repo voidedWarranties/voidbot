@@ -8,20 +8,27 @@
     "restart": "pm2 restart ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "dev": "cross-env NODE_ENV=development node index.js",
+    "start-web": "node index-web.js",
     "dev-web": "cross-env NODE_ENV=development node index-web.js",
+    "build": "nuxt build",
     "lint": "eslint . --fix"
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
     "eslint": "^7.0.0",
+    "eslint-plugin-vue": "^7.0.0-alpha.3",
+    "node-sass": "^4.14.1",
     "pm2": "^4.4.0",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "sass-loader": "^8.0.2"
   },
   "dependencies": {
     "agenda": "^3.1.0",
     "anidbjs": "^2.4.1",
     "another-logger": "^2.0.1",
     "audio-mixer": "^2.1.4",
+    "axios": "^0.19.2",
+    "bootstrap-vue": "^2.14.0",
     "connect-mongo": "^3.2.0",
     "dotenv": "^8.2.0",
     "elasticlunr": "^0.9.5",
@@ -35,12 +42,14 @@
     "mongoose": "^5.9.14",
     "node-ipc": "^9.1.1",
     "node-myanimelist": "^2.0.0",
+    "nuxt": "^2.12.2",
     "passport": "^0.4.1",
     "passport-discord": "^0.1.3",
-    "pug": "^2.0.4",
     "readdirp": "^3.4.0",
     "wav-converter": "^1.0.0",
     "xml2js": "^0.4.23"
   },
-  "precommit": ["lint"]
+  "precommit": [
+    "lint"
+  ]
 }

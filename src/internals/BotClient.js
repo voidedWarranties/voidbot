@@ -13,14 +13,17 @@ export default class BotClient extends Client {
 
         this.commandRegistry.registerDirectory(path.join(__dirname, "../commands"));
         this.addEventsIn(path.join(__dirname, "../events"));
-        
+
         this.jobDir = path.join(__dirname, "../jobs");
 
         this.agenda = agenda;
 
         this.on("ready", () => {
             log.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
-            log.info(`Invite: https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=8`);
+
+            this.invite = `https://discordapp.com/oauth2/authorize?client_id=${this.user.id}&scope=bot&permissions=2147483647`;
+
+            log.info(`Invite: ${this.invite}`);
         });
 
         this.once("ready", () => {
@@ -35,11 +38,11 @@ export default class BotClient extends Client {
     async loadJobs() {
         for await (const entry of readdirp(this.jobDir, { fileFilter: "*.js" })) {
             const entryPath = path.join(this.jobDir, entry.path);
-    
+
             const { run, name } = require(entryPath);
-    
+
             this.agenda.define(name, job => run(job, this));
-    
+
             log.debug(`Defined agenda job ${name}`);
         }
 

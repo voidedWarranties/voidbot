@@ -2,3 +2,4 @@ node_modules/
 cache/*.json
 cache/anime-titles.xml
 .env
+.nuxt/

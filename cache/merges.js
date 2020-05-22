@@ -65,10 +65,10 @@ export const merges = [
     //#endregion
 
     //#region Nisekoi different ages
-    [57798,65277], // Kirisaki Chitoge
-    [57799,67649], // Onodera Kosaki
-    [57905,65278], // Tsugumi Seishirou
-    [60162,67820], // Tachibana Marika
+    [57798, 65277], // Kirisaki Chitoge
+    [57799, 67649], // Onodera Kosaki
+    [57905, 65278], // Tsugumi Seishirou
+    [60162, 67820], // Tachibana Marika
     //#endregion
 ];
 
@@ -87,5 +87,7 @@ export const ignored = [
     [90078, 90580],
     [29037, 88063],
     [86987, 104002],
-    [87234, 100741]
+    [87234, 100741],
+    [42056, 81001],
+    [36112, 49001]
 ];
