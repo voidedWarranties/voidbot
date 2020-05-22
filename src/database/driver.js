@@ -5,7 +5,8 @@ const uri = process.env.MONGO_URI || "mongodb://localhost/voidbot";
 mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useFindAndModify: false,
+    useCreateIndex: true
 });
 
 const db = mongoose.connection;
