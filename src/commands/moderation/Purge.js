@@ -16,7 +16,7 @@ export default class PurgeCommand extends Command {
                     name: "limit"
                 },
                 {
-                    type: "string",
+                    type: "message",
                     name: "after",
                     optional: true
                 }
@@ -33,14 +33,6 @@ export default class PurgeCommand extends Command {
 
         var reason = args.join(" ");
 
-        var message;
-
-        try {
-            message = await msg.channel.getMessage(parsed[2]);
-        } catch (e) {
-            reason = parsed[1] + reason;
-        }
-
         try {
             const purged = await msg.channel.purge(parsed[1], msg => {
                 if (parsed[0]) {
@@ -48,7 +40,7 @@ export default class PurgeCommand extends Command {
                 } else {
                     return true;
                 }
-            }, null, message ? parsed[2] : null, reason);
+            }, null, parsed[2] ? parsed[2].id : null, reason);
 
             const confirmation = await msg.channel.createMessage(`Purged ${purged} messages`);
             setTimeout(() => {
