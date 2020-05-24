@@ -1,7 +1,21 @@
 import Guild from "../database/models/Guild";
 
+export function addModlog(id, channelID) {
+    return Guild.findUpsert(id, {
+        "modlog.channel": channelID
+    });
+}
+
+export function removeModlog(id) {
+    return Guild.findOneAndUpdate({ id }, {
+        $unset: {
+            "modlog.channel": ""
+        }
+    });
+}
+
 export function addPrefix(id, prefix) {
-    return findUpsert(id, {
+    return Guild.findUpsert(id, {
         $addToSet: {
             prefixes: prefix
         }
@@ -22,8 +36,4 @@ export function resetPrefixes(id) {
             prefixes: ""
         }
     });
-}
-
-function findUpsert(id, update) {
-    return Guild.findOneAndUpdate({ id }, update, { new: true, upsert: true });
 }

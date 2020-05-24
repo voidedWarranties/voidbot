@@ -1,4 +1,5 @@
 import { Command } from "karasu";
+import { addCase, actionTypes } from "../../internals/Modlog";
 
 export default class BanCommand extends Command {
     constructor(bot) {
@@ -44,7 +45,9 @@ export default class BanCommand extends Command {
             }
         }
 
-        if (parsed[1]) this.bot.agenda.schedule(Date.now() + (parsed[1] * 1000), "unban", { guild: msg.guildID, user: parsed[0].id });
+        if (parsed[1]) this.bot.agenda.schedule(Date.now() + (parsed[1] * 1000), "unban", { guild: msg.guildID, mod: msg.author.id, user: parsed[0].id });
+
+        addCase(msg.channel.guild, actionTypes.ban, msg.author, parsed[0], reason, true);
 
         return `Banned user ${parsed[0].username}`;
     }

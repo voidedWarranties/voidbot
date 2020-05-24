@@ -7,13 +7,13 @@ export default class PurgeCommand extends Command {
             permissions: ["manageMessages"],
             arguments: [
                 {
+                    type: "number",
+                    name: "limit"
+                },
+                {
                     type: "user",
                     name: "user",
                     optional: true
-                },
-                {
-                    type: "number",
-                    name: "limit"
                 },
                 {
                     type: "message",
@@ -23,7 +23,7 @@ export default class PurgeCommand extends Command {
             ],
             category: "moderation",
             usages: [
-                "purge (user) <limit> (after) (reason)"
+                "purge <limit> (user) (after) (reason)"
             ]
         });
     }
@@ -34,9 +34,9 @@ export default class PurgeCommand extends Command {
         var reason = args.join(" ");
 
         try {
-            const purged = await msg.channel.purge(parsed[1], msg => {
-                if (parsed[0]) {
-                    return msg.author.id === parsed[0].id;
+            const purged = await msg.channel.purge(parsed[0], msg => {
+                if (parsed[1]) {
+                    return msg.author.id === parsed[1].id;
                 } else {
                     return true;
                 }

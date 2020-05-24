@@ -1,4 +1,5 @@
 import { Command } from "karasu";
+import { addCase, actionTypes } from "../../internals/Modlog";
 
 export default class UnbanCommand extends Command {
     constructor(bot) {
@@ -26,6 +27,9 @@ export default class UnbanCommand extends Command {
                 const reason = args.join(" ");
 
                 await msg.member.guild.unbanMember(ban.user.id, reason);
+
+                const userObj = await this.bot.getRESTUser(ban.user.id);
+                await addCase(msg.channel.guild, actionTypes.unban, msg.author, userObj, reason, true);
 
                 msg.channel.createMessage(`Unbanned ${ban.user.username}#${ban.user.discriminator}`);
             } else {
