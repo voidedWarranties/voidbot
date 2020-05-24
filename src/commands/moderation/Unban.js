@@ -6,7 +6,8 @@ export default class UnbanCommand extends Command {
             description: "Unban a member.",
             aliases: ["pardon"],
             permissions: ["banMembers"],
-            category: "moderation"
+            category: "moderation",
+            guildOnly: true
         });
     }
 

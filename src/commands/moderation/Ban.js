@@ -24,13 +24,12 @@ export default class BanCommand extends Command {
             category: "moderation",
             usages: [
                 "ban <user> <duration> (purgeDays) (reason)"
-            ]
+            ],
+            guildOnly: true
         });
     }
 
     async run(msg, args, parsed) {
-        if (!msg.guildID) return "This command is guild only!";
-
         const reason = args.join(" ");
 
         if (parsed[2] && parsed[2] < 0 || parsed[2] > 7) return "Purge duration must be 0-7 days";

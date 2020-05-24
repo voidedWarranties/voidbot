@@ -9,13 +9,13 @@ export default class PrefixCommand extends Command {
     constructor(bot) {
         super(bot, "prefix", {
             permissions: ["manageGuild"],
-            category: "config"
+            category: "config",
+            guildOnly: true
         });
     }
 
     async run(msg, args) {
         const guild = msg.guildID;
-        if (!guild) return "This command only works in guilds!";
 
         if (!args[0]) return "Need an operation: add, remove, or reset";
 
