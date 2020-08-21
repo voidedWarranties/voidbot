@@ -87,12 +87,7 @@ class DumpCommand extends Command {
 
     async run() {
         const characters = await Character.find({ mal_id: { $exists: true } });
-        var links = [];
-
-        characters.forEach(c => {
-            const link = [c.anidb_id[0], c.mal_id];
-            links.push(link);
-        });
+        const links = characters.map(c => [c.anidb_id[0], c.mal_id]);
 
         const content = `export const links = ${JSON.stringify(links)};`;
         fs.writeFileSync(path.join(__dirname, dumpFile), content);

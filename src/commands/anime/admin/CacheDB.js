@@ -16,10 +16,7 @@ async function* iterateCache(fileFilter = "*.json") {
 
         if (isNaN(aName) || isNaN(bName)) throw new Error("JSON file in cache folder is not named by number");
 
-        const id1 = parseInt(aName);
-        const id2 = parseInt(bName);
-
-        return id1 - id2;
+        return +aName - +bName;
     });
 
     for (const file of files) {

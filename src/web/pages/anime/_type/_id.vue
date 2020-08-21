@@ -65,7 +65,8 @@ export default {
             title: "Anime",
             meta: [
                 { hid: "og:title", property: "og:title", content: this.anime.title_en },
-                { hid: "og:image", property: "og:image", content: this.anime.thumbnail }
+                { hid: "og:image", property: "og:image", content: this.anime.thumbnail },
+                { name: "referrer", content: "no-referrer" }
             ]
         }
     }
