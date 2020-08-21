@@ -11,6 +11,6 @@ const guildSchema = new Schema({
 
 guildSchema.statics.findUpsert = function(id, update) {
     return this.findOneAndUpdate({ id }, update, { new: true, upsert: true });
-}
+};
 
 export default mongoose.model("Guilds", guildSchema);

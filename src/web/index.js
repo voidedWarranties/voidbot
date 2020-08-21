@@ -76,10 +76,8 @@ app.use("/", async (req, res, next) => {
     vueMiddleware(req, res, next, false, { user, invite });
 });
 
-app.use("/crowdsource", (req, res, next) => {
-    vueMiddleware(req, res, next, true, async () => {
-        return await Character.getPendingAnimes();
-    });
+app.use("/crowdsource", async (req, res, next) => {
+    vueMiddleware(req, res, next, true, { animes: await Character.getPendingAnimes() });
 });
 
 app.use("/link", checkAuthMiddleware);

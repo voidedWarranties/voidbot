@@ -5,7 +5,7 @@ export const actionTypes = {
     unban: "Unban",
     kick: "Kick",
     softban: "Softban"
-}
+};
 
 export async function addCase(guild, type, modUser, targetUser, reason, bot = false) {
     const guildDb = await Guild.findOne({ id: guild.id });

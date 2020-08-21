@@ -6,5 +6,6 @@ export default {
         icons: true,
         bootstrapCSS: false,
         bootstrapVueCSS: false
-    }
+    },
+    telemetry: false
 };

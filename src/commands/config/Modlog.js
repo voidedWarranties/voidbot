@@ -24,14 +24,15 @@ export default class ModlogCommand extends Command {
 
     async run(msg, args, parsed) {
         switch (parsed[0]) {
-            case "remove":
-                await removeModlog(msg.guildID);
-                return "Unset the modlog channel for this guild.";
-            case "set":
-                if (!parsed[1]) return "Please specify a channel!";
+        case "remove":
+            await removeModlog(msg.guildID);
+            return "Unset the modlog channel for this guild.";
+        case "set": {
+            if (!parsed[1]) return "Please specify a channel!";
 
-                const doc = await addModlog(msg.guildID, parsed[1].id);
-                return `Set the modlog channel for this guild: <#${doc.modlog.channel}>`;
+            const doc = await addModlog(msg.guildID, parsed[1].id);
+            return `Set the modlog channel for this guild: <#${doc.modlog.channel}>`;
+        }
         }
     }
 }
