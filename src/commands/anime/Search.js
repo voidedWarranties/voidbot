@@ -19,7 +19,7 @@ export default class SearchCommand extends Command {
 
         const query = args.join(" ");
 
-        var results = index.search(query, {}).slice(0, 3);
+        var results = index.search(query, {}).slice(0, 5);
 
         if (results.length < 1) {
             return "No results found";
@@ -28,7 +28,7 @@ export default class SearchCommand extends Command {
         results = results.map((r, idx) => {
             const titleObj = index.documentStore.getDoc(r.ref).titleObj;
 
-            return `${idx + 1}) ${titleObj.en ? titleObj.en.replace("`", "\\`") : "?"} - ${titleObj.ja.replace("`", "\\`")} (ID: ${r.ref})`;
+            return `${idx + 1}) ${titleObj.en ? titleObj.en.replace("`", "\\`") : "?"} - ${(titleObj.ja || "?").replace("`", "\\`")} (ID: ${r.ref})`;
         });
 
 

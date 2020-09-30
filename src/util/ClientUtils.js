@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { Mal } from "node-myanimelist";
+import { Jikan } from "node-myanimelist";
 import log from "../logger";
 
 export async function createEmbed(character, image = null) {
@@ -19,8 +19,8 @@ export async function addPictures(character) {
     if (character.mal_id > 0) {
         if (character.mal_cache && Date.now() - character.mal_cache < 1000 * 60 * 60 * 24 * 31) return character;
 
-        const res = await Mal.character(character.mal_id).pictures();
-        const picturesArr = res.data.pictures.map(pic => pic.large ? pic.large : pic.small);
+        const res = await Jikan.character(character.mal_id).pictures();
+        const picturesArr = res.pictures.map(pic => pic.large ? pic.large : pic.small);
 
         log.debug(`Indexed MAL photos for character ${character.name}`);
 

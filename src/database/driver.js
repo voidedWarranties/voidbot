@@ -6,7 +6,8 @@ mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
-    useCreateIndex: true
+    useCreateIndex: true,
+    serverSelectionTimeoutMS: 360000
 });
 
 const db = mongoose.connection;

@@ -1,5 +1,5 @@
 import Submission from "../database/models/Submission";
-import { Mal } from "node-myanimelist";
+import { Jikan } from "node-myanimelist";
 
 export async function submit(user_id, anidb_id, mal_id) {
     const submission = new Submission();
@@ -12,8 +12,8 @@ export async function submit(user_id, anidb_id, mal_id) {
 
 export async function searchCharacters(name, resultsShown = 10) {
     try {
-        const res = await Mal.search().character({ q: name });
-        var searchResults = res.data.results;
+        const res = await Jikan.search().character({ q: name });
+        var searchResults = res.results;
         searchResults = searchResults.slice(0, resultsShown);
         return searchResults.filter(r => r.anime.length > 0);
     } catch(e) {
