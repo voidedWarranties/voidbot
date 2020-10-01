@@ -25,7 +25,10 @@ import axios from "axios";
 export default {
     head() {
         return {
-            title: "Linking"
+            title: "Linking",
+            meta: [
+                { name: "referrer", content: "no-referrer" }
+            ]
         }
     },
     computed: {

@@ -12,10 +12,7 @@
 export default {
     head() {
         return {
-            title: "Crowdsourcing",
-            meta: [
-                { name: "referrer", content: "no-referrer" }
-            ]
+            title: "Crowdsourcing"
         }
     },
     computed: {
@@ -32,5 +29,7 @@ export default {
 </script>
 
 <style>
-
+a {
+    display: block;
+}
 </style>

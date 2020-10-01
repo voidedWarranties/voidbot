@@ -34,7 +34,7 @@ function checkAuthMiddleware(req, res, next) {
 const MongoStore = mongoStore(session);
 
 const app = express();
-const port = 1337;
+const port = process.env.PORT || 1337;
 
 const store = new MongoStore({
     mongooseConnection: mongoose.connection
