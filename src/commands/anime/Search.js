@@ -76,6 +76,8 @@ class IndexedCommand extends Command {
         const query = args.join(" ");
 
         const results = await Anime.find({ $text: { $search: query } }).populate("characters");
+        if (!results.length) return "Nothing matches query";
+        
         const result = results[0];
 
         const main = filterCasts(result.anidb_id, result.characters, "main character in");

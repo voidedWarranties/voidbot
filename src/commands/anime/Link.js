@@ -76,7 +76,7 @@ class VerifyCommand extends Command {
     }
 }
 
-const dumpFile = "../../../cache/dump";
+const dumpFile = "../../../cache/dump.js";
 
 class DumpCommand extends Command {
     constructor(bot) {
