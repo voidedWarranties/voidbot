@@ -126,7 +126,7 @@ app.get("/login/callback", passport.authenticate("discord", {
     res.redirect("/");
 });
 
-app.get("/logout", checkAuth, (req, res) => {
+app.get("/logout", checkAuthMiddleware, (req, res) => {
     req.logout();
     res.redirect("/");
 });
