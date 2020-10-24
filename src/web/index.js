@@ -1,13 +1,12 @@
 import express from "express";
 import log from "../logger";
-import path from "path";
 import session from "express-session";
 import mongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import passport from "passport";
 import Character from "../database/models/Character";
 import Anime from "../database/models/Anime";
-import { getInfo, getMethod } from "./ipc";
+import { getInfo } from "./ipc";
 import nuxtConfig from "../../nuxt.config";
 import { Nuxt, Builder } from "nuxt";
 import "../database/driver";
@@ -49,8 +48,6 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-app.use("/file", express.static(path.join(__dirname, "../../cdn")));
 
 nuxtConfig.dev = process.env.NODE_ENV === "development";
 
@@ -105,15 +102,6 @@ app.use("/anime/:type/:id", async (req, res, next) => {
         return Object.assign(c, { cast: animeData.cast });
     });
     vueMiddleware(req, res, next, false, { anime });
-});
-
-app.use("/recording/:filename", async (req, res, next) => {
-    const exists = await getMethod("cdn.endpoints.recording", "exists", [req.params.filename]);
-    if (!exists) return res.writeHead(404);
-
-    const url = await getMethod("cdn.endpoints.recording", "get", [req.params.filename]);
-
-    vueMiddleware(req, res, next, false, { fileURL: url });
 });
 
 app.use("/api", api);

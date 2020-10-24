@@ -26,7 +26,6 @@
     "agenda": "^3.1.0",
     "anidbjs": "^2.4.1",
     "another-logger": "^3.0.0",
-    "audio-mixer": "^2.1.4",
     "axios": "^0.20.0",
     "bootstrap-vue": "^2.18.1",
     "connect-mongo": "^3.2.0",
@@ -39,7 +38,6 @@
     "fs-extra": "^9.0.1",
     "ini": "^1.3.5",
     "karasu": "voidedWarranties/karasu",
-    "minizip-asm.js": "^1.0.10",
     "mongoose": "^5.10.9",
     "node-ipc": "^9.1.1",
     "node-myanimelist": "^3.0.4",
@@ -48,9 +46,7 @@
     "passport-discord": "^0.1.4",
     "readdirp": "^3.5.0",
     "translation-google": "^0.2.1",
-    "wav-converter": "^1.0.0",
-    "xml2js": "^0.4.23",
-    "youtube-dl": "^3.0.2"
+    "xml2js": "^0.4.23"
   },
   "precommit": [
     "lint"

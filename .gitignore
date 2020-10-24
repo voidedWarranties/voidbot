@@ -3,4 +3,3 @@ cache/*.json
 cache/anime-titles.xml
 .env
 .nuxt/
-media/

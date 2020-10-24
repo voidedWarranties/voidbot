@@ -3,8 +3,6 @@ import path from "path";
 import log from "../logger";
 import readdirp from "readdirp";
 import agenda from "../database/agenda";
-import RecordingManager from "./RecordingManager";
-import CDNManager from "./CDNManager";
 import startIPC from "./ipc";
 
 export default class BotClient extends Client {
@@ -30,9 +28,6 @@ export default class BotClient extends Client {
             this.loadJobs();
             startIPC(this);
         });
-
-        this.recordingManager = new RecordingManager(this);
-        this.cdn = new CDNManager();
     }
 
     async loadJobs() {
