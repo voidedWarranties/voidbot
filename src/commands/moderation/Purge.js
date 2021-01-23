@@ -28,19 +28,19 @@ export default class PurgeCommand extends Command {
         });
     }
 
-    async run(msg, args, parsed) {
+    async run(msg, args, { limit, user, after }) {
         await msg.delete();
 
         var reason = args.join(" ");
 
         try {
-            const purged = await msg.channel.purge(parsed[0], msg => {
-                if (parsed[1]) {
-                    return msg.author.id === parsed[1].id;
+            const purged = await msg.channel.purge(limit, msg => {
+                if (user) {
+                    return msg.author.id === user.id;
                 } else {
                     return true;
                 }
-            }, null, parsed[2] ? parsed[2].id : null, reason);
+            }, null, after ? after.id : null, reason);
 
             const confirmation = await msg.channel.createMessage(`Purged ${purged} messages`);
             setTimeout(() => {

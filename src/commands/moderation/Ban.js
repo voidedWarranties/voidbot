@@ -30,13 +30,13 @@ export default class BanCommand extends Command {
         });
     }
 
-    async run(msg, args, parsed) {
+    async run(msg, args, { user, duration, purge }) {
         const reason = args.join(" ");
 
-        if (parsed[2] && parsed[2] < 0 || parsed[2] > 7) return "Purge duration must be 0-7 days";
+        if (purge && purge < 0 || purge > 7) return "Purge duration must be 0-7 days";
 
         try {
-            await msg.channel.guild.banMember(parsed[0].id, parsed[2] || 0, reason);
+            await msg.channel.guild.banMember(user.id, purge || 0, reason);
         } catch (e) {
             if (e.constructor.name === "DiscordRESTError") {
                 return "No permissions";
@@ -45,10 +45,10 @@ export default class BanCommand extends Command {
             }
         }
 
-        if (parsed[1]) this.bot.agenda.schedule(Date.now() + (parsed[1] * 1000), "unban", { guild: msg.guildID, mod: msg.author.id, user: parsed[0].id });
+        if (duration) this.bot.agenda.schedule(Date.now() + (duration * 1000), "unban", { guild: msg.guildID, mod: msg.author.id, user: user.id });
 
-        addCase(msg.channel.guild, actionTypes.ban, msg.author, parsed[0], reason, true);
+        addCase(msg.channel.guild, actionTypes.ban, msg.author, user, reason, true);
 
-        return `Banned user ${parsed[0].username}`;
+        return `Banned user ${user.username}`;
     }
 }

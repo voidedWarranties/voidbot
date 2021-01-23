@@ -22,17 +22,17 @@ export default class SoftbanCommand extends Command {
         });
     }
 
-    async run(msg, args, parsed) {
+    async run(msg, args, { user, duration }) {
         const reason = args.join(" ");
 
-        if (parsed[1] && parsed[1] < 0 || parsed[1] > 7) return "Purge duration must be 0-7 days";
+        if (duration && duration < 0 || duration > 7) return "Purge duration must be 0-7 days";
 
         try {
             const guild = msg.channel.guild;
-            await guild.banMember(parsed[0].id, parsed[1] || 1, reason);
-            await guild.unbanMember(parsed[0].id, "Softban");
+            await guild.banMember(user.id, duration || 1, reason);
+            await guild.unbanMember(user.id, "Softban");
 
-            await addCase(guild, actionTypes.softban, msg.author, parsed[0], reason, true);
+            await addCase(guild, actionTypes.softban, msg.author, user, reason, true);
         } catch (e) {
             if (e.constructor.name === "DiscordRESTError") {
                 return "No permissions";
@@ -41,6 +41,6 @@ export default class SoftbanCommand extends Command {
             }
         }
 
-        return `Softbanned member ${parsed[0].username}`;
+        return `Softbanned member ${user.username}`;
     }
 }

@@ -16,11 +16,11 @@ export default class KickCommand extends Command {
         });
     }
 
-    async run(msg, args, parsed) {
+    async run(msg, args, { user }) {
         const reason = args.join(" ");
 
         try {
-            await msg.channel.guild.kickMember(parsed[0].id, reason);
+            await msg.channel.guild.kickMember(user.id, reason);
         } catch (e) {
             if (e.constructor.name === "DiscordRESTError") {
                 return "No permissions";
@@ -29,6 +29,6 @@ export default class KickCommand extends Command {
             }
         }
 
-        return `Kicked user ${parsed[0].username}`;
+        return `Kicked user ${user.username}`;
     }
 }
