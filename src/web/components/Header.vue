@@ -1,6 +1,6 @@
 <template>
     <b-navbar toggleable="lg" type="dark" variant="dark">
-        <b-navbar-brand href="/" :disabled="currentRoute === '/'">voidbot</b-navbar-brand>
+        <b-navbar-brand href="/" :disabled="currentRoute === '/'">{{ this.botName }}</b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -39,6 +39,9 @@ export default {
         },
         user() {
             return this.$store.state.user;
+        },
+        botName() {
+            return this.$store.state.botName;
         },
         links() {
             return [

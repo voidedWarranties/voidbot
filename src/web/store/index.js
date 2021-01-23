@@ -1,6 +1,7 @@
 export const state = () => ({
     user: {},
-    pageData: {}
+    pageData: {},
+    botName: ""
 });
 
 export const mutations = {
@@ -9,6 +10,9 @@ export const mutations = {
     },
     pageData(state, data) {
         state.pageData = data;
+    },
+    botName(state, name) {
+        state.botName = name;
     }
 };
 
@@ -21,5 +25,7 @@ export const actions = {
         if (res.locals) {
             commit("pageData", res.locals);
         }
+
+        commit("botName", process.env.BOT_NAME);
     }
 };

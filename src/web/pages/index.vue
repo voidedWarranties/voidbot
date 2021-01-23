@@ -16,7 +16,7 @@ export default {
     },
     head() {
         return {
-            title: "voidbot"
+            title: this.$store.state.botName
         }
     },
     computed: {
