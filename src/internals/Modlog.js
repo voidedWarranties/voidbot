@@ -9,6 +9,7 @@ export const actionTypes = {
 
 export async function addCase(guild, type, modUser, targetUser, reason, bot = false) {
     const guildDb = await Guild.findOne({ id: guild.id });
+    if (!guildDb.modlog.channel) return;
 
     const channel = guild.channels.find(c => c.id === guildDb.modlog.channel);
 
