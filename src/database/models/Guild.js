@@ -6,6 +6,12 @@ const guildSchema = new Schema({
     modlog: {
         channel: String,
         cases: { type: Array, default: [] }
+    },
+    welcome: {
+        welcomeType: String,
+        image: String,
+        template: String,
+        channel: String
     }
 });
 
