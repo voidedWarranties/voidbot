@@ -6,7 +6,10 @@ import Guild from "./database/models/Guild";
 const defaultPrefix = process.env.PREFIX || "!";
 
 const bot = new BotClient(process.env.TOKEN, {
-    maxShards: "auto"
+    maxShards: "auto",
+    intents: [
+        "guilds", "guildMembers", "guildBans", "guildMessages", "guildMessageReactions", "directMessages", "directMessageReactions"
+    ]
 }, {
     owner: process.env.OWNER,
     prefix: async msg => {
