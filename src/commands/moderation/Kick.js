@@ -19,15 +19,10 @@ export default class KickCommand extends Command {
     async run(msg, args, { user }) {
         const reason = args.join(" ");
 
-        try {
-            await msg.channel.guild.kickMember(user.id, reason);
-        } catch (e) {
-            if (e.constructor.name === "DiscordRESTError") {
-                return "No permissions";
-            } else {
-                throw e;
-            }
-        }
+        const result = await this.bot.modlogKick(msg.channel.guild, user, msg.author, reason);
+
+        if (!result)
+            return "Failed to kick user - check permissions.";
 
         return `Kicked user ${user.username}`;
     }

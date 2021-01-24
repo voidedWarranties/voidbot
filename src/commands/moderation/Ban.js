@@ -1,5 +1,4 @@
 import { Command } from "karasu";
-import { addCase, actionTypes } from "../../internals/Modlog";
 
 export default class BanCommand extends Command {
     constructor(bot) {
@@ -35,19 +34,10 @@ export default class BanCommand extends Command {
 
         if (purge && purge < 0 || purge > 7) return "Purge duration must be 0-7 days";
 
-        try {
-            await msg.channel.guild.banMember(user.id, purge || 0, reason);
-        } catch (e) {
-            if (e.constructor.name === "DiscordRESTError") {
-                return "No permissions";
-            } else {
-                throw e;
-            }
-        }
+        const result = await this.bot.modlogBan(msg.channel.guild, user, msg.author, reason, duration, purge);
 
-        if (duration) this.bot.agenda.schedule(Date.now() + (duration * 1000), "unban", { guild: msg.guildID, mod: msg.author.id, user: user.id });
-
-        addCase(msg.channel.guild, actionTypes.ban, msg.author, user, reason, true);
+        if (!result)
+            return "Failed to ban user - check permissions.";
 
         return `Banned user ${user.username}`;
     }

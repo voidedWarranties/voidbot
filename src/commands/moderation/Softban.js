@@ -1,5 +1,4 @@
 import { Command } from "karasu";
-import { addCase, actionTypes } from "../../internals/Modlog";
 
 export default class SoftbanCommand extends Command {
     constructor(bot) {
@@ -22,24 +21,15 @@ export default class SoftbanCommand extends Command {
         });
     }
 
-    async run(msg, args, { user, duration }) {
+    async run(msg, args, { user, duration: purge }) {
         const reason = args.join(" ");
 
-        if (duration && duration < 0 || duration > 7) return "Purge duration must be 0-7 days";
+        if (purge && purge < 0 || purge > 7) return "Purge duration must be 0-7 days";
 
-        try {
-            const guild = msg.channel.guild;
-            await guild.banMember(user.id, duration || 1, reason);
-            await guild.unbanMember(user.id, "Softban");
+        const result = await this.bot.modlogBan(msg.channel.guild, user, msg.author, reason, 0, purge || 1, true);
 
-            await addCase(guild, actionTypes.softban, msg.author, user, reason, true);
-        } catch (e) {
-            if (e.constructor.name === "DiscordRESTError") {
-                return "No permissions";
-            } else {
-                throw e;
-            }
-        }
+        if (!result)
+            return "Failed to ban user - check permissions.";
 
         return `Softbanned member ${user.username}`;
     }

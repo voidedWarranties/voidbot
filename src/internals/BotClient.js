@@ -4,6 +4,7 @@ import log from "../logger";
 import readdirp from "readdirp";
 import agenda from "../database/agenda";
 import startIPC from "./ipc";
+import { addCase, actionTypes } from "./Modlog";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
@@ -42,5 +43,51 @@ export default class BotClient extends Client {
         }
 
         await this.agenda.start();
+    }
+
+    async _tryPerms(func) {
+        try {
+            await func();
+
+            return true;
+        } catch (e) {
+            if (e.constructor.name === "DiscordRESTError") {
+                return false;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    modlogKick(guild, user, mod, reason = "") {
+        return this._tryPerms(async () => {
+            await guild.kickMember(user.id, reason);
+
+            await addCase(guild, actionTypes.kick, mod, user, reason, true);
+        });
+    }
+
+    modlogBan(guild, user, mod, reason = "", duration = 0, purge = 0, soft = false) {
+        return this._tryPerms(async () => {
+            await guild.banMember(user.id, purge, reason);
+
+            const actionType = soft ? actionTypes.softban : actionTypes.ban;
+
+            if (soft)
+                await guild.unbanMember(user.id, "Softban");
+
+            if (duration && !soft)
+                this.agenda.schedule(Date.now() + (duration * 1000), "unban", { guild: guild.id, mod: mod.id, user: user.id });
+
+            await addCase(guild, actionType, mod, user, reason, true);
+        });
+    }
+
+    modlogUnban(guild, user, mod, reason = "") {
+        return this._tryPerms(async () => {
+            await guild.unbanMember(user.id, reason);
+
+            await addCase(guild, actionTypes.unban, mod, user, reason, true);
+        });
     }
 }
