@@ -1,5 +1,5 @@
 import { Command } from "karasu";
-import Guild from "../../database/models/Guild";
+import ConfigManager from "../../internals/ConfigManager";
 
 export default class WelcomeCommand extends Command {
     constructor(bot) {
@@ -22,7 +22,7 @@ export default class WelcomeCommand extends Command {
                 }
             ],
             subCommands: [
-                new UnsetSubCommand()
+                new ResetSubCommand()
             ]
         });
     }
@@ -35,31 +35,22 @@ export default class WelcomeCommand extends Command {
 
         const template = args.join(" ");
 
-        await Guild.findUpsert(msg.guildID, {
-            "welcome.channel": channel.id,
-            "welcome.welcomeType": type,
-            "welcome.image": image,
-            "welcome.template": template
-        });
+        await ConfigManager.addWelcome(msg.guildID, channel.id, type, image, template);
 
         return "Updated welcome message";
     }
 }
 
-class UnsetSubCommand extends Command {
+class ResetSubCommand extends Command {
     constructor(bot) {
-        super(bot, "unset", {
+        super(bot, "reset", {
             permissions: ["manageGuild"],
             guildOnly: true
         });
     }
 
     async run(msg) {
-        await Guild.findOneAndUpdate({ id: msg.guildID }, {
-            $unset: {
-                welcome: ""
-            }
-        });
+        await ConfigManager.removeWelcome(msg.guildID);
 
         return "Unset welcome message";
     }

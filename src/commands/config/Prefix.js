@@ -1,5 +1,5 @@
 import { Command } from "karasu";
-import { addPrefix, removePrefix, resetPrefixes } from "../../internals/GuildManager";
+import ConfigManager from "../../internals/ConfigManager";
 
 function prefixList(doc) {
     return doc.prefixes.map(p => `\`${p}\``).join(", ");
@@ -24,18 +24,18 @@ export default class PrefixCommand extends Command {
         switch (args[0].toLowerCase()) {
         case "add":
             if (args[1]) {
-                const doc = await addPrefix(guild, prefix);
+                const doc = await ConfigManager.addPrefix(guild, prefix);
                 return `Added prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
             }
             break;
         case "remove":
             if (args[1]) {
-                const doc = await removePrefix(guild, args[1]);
+                const doc = await ConfigManager.removePrefix(guild, args[1]);
                 return `Removed prefix ${prefix}, list of all prefixes: ${prefixList(doc)}`;
             }
             break;
         case "reset":
-            await resetPrefixes(guild);
+            await ConfigManager.resetPrefixes(guild);
             return "Reset prefixes for this guild, now using defaults.";
         case "default":
             return "Invalid operation: use add, remove, or reset";

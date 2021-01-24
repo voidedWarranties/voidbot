@@ -1,5 +1,5 @@
 import { Command } from "karasu";
-import { addModlog, removeModlog } from "../../internals/GuildManager";
+import ConfigManager from "../../internals/ConfigManager";
 
 export default class ModlogCommand extends Command {
     constructor(bot) {
@@ -25,12 +25,12 @@ export default class ModlogCommand extends Command {
     async run(msg, args, { operation, channel }) {
         switch (operation) {
         case "remove":
-            await removeModlog(msg.guildID);
+            await ConfigManager.removeModlog(msg.guildID);
             return "Unset the modlog channel for this guild.";
         case "set": {
             if (!channel) return "Please specify a channel!";
 
-            const doc = await addModlog(msg.guildID, channel.id);
+            const doc = await ConfigManager.addModlog(msg.guildID, channel.id);
             return `Set the modlog channel for this guild: <#${doc.modlog.channel}>`;
         }
         }
