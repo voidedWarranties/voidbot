@@ -7,7 +7,7 @@ function getFlag(code) {
     }
 }
 
-export async function messageReactionAdd(msg, emoji, userID) {
+export async function messageReactionAdd(msg, emoji, reactorObj) {
     msg = await msg.channel.getMessage(msg.id);
     const flag = emoji.name.slice(0, emoji.name.length);
 
@@ -17,7 +17,7 @@ export async function messageReactionAdd(msg, emoji, userID) {
         to: flagDict[flag]
     });
 
-    const reactor = msg.channel.guild.members.find(m => m.id === userID);
+    const reactor = (await msg.channel.guild.fetchMembers({ userIDs: [reactorObj.id] }))[0];
 
     msg.channel.createEmbed({
         title: `Translation: ${getFlag(res.from.language.iso)} :arrow_right: ${flag}`,
