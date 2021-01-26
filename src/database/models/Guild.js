@@ -12,6 +12,9 @@ const guildSchema = new Schema({
         image: String,
         template: String,
         channel: String
+    },
+    muted: {
+        role: String
     }
 });
 

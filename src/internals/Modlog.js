@@ -4,7 +4,9 @@ export const actionTypes = {
     ban: "Ban",
     unban: "Unban",
     kick: "Kick",
-    softban: "Softban"
+    softban: "Softban",
+    mute: "Mute",
+    unmute: "Unmute"
 };
 
 export async function addCase(guild, type, modUser, targetUser, reason, bot = false) {

@@ -5,6 +5,7 @@ import readdirp from "readdirp";
 import agenda from "../database/agenda";
 import startIPC from "./ipc";
 import { addCase, actionTypes } from "./Modlog";
+import Guild from "../database/models/Guild";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
@@ -16,6 +17,10 @@ export default class BotClient extends Client {
         this.jobDir = path.join(__dirname, "../jobs");
 
         this.agenda = agenda;
+
+        this.agenda.on("fail", (err) => {
+            log.error(`Job failed with error:\n${err.stack}`);
+        });
 
         this.on("ready", () => {
             log.info(`Bot logged in: @${this.user.username}#${this.user.discriminator}`);
@@ -47,9 +52,9 @@ export default class BotClient extends Client {
 
     async _tryPerms(func) {
         try {
-            await func();
+            const value = await func();
 
-            return true;
+            return value === undefined || value === true ? true : false;
         } catch (e) {
             if (e.constructor.name === "DiscordRESTError") {
                 return false;
@@ -88,6 +93,39 @@ export default class BotClient extends Client {
             await guild.unbanMember(user.id, reason);
 
             await addCase(guild, actionTypes.unban, mod, user, reason, true);
+        });
+    }
+
+    modlogMute(guild, user, mod, reason = "", duration = 0) {
+        return this._tryPerms(async () => {
+            const dbGuild = await Guild.findOne({ id: guild.id });
+
+            if (!dbGuild.muted.role) return false;
+
+            const [member] = await guild.fetchMembers({ userIDs: [user.id] });
+
+            await member.addRole(dbGuild.muted.role, reason);
+
+            if (duration)
+                this.agenda.schedule(Date.now() + (duration * 1000), "unmute", { guild: guild.id, mod: mod.id, user: user.id, role: dbGuild.muted.role });
+
+            await addCase(guild, actionTypes.mute, mod, user, reason, true);
+        });
+    }
+
+    modlogUnmute(guild, user, mod, reason = "") {
+        return this._tryPerms(async () => {
+            const dbGuild = await Guild.findOne({ id: guild.id });
+
+            if (!dbGuild.muted.role) return false;
+
+            const [member] = await guild.fetchMembers({ userIDs: [user.id] });
+
+            if (!member.roles.includes(dbGuild.muted.role)) return false;
+
+            await member.removeRole(dbGuild.muted.role, reason);
+
+            await addCase(guild, actionTypes.unmute, mod, user, reason, true);
         });
     }
 }

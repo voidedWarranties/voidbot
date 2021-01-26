@@ -33,4 +33,12 @@ export default class ConfigManager {
     static resetPrefixes(id) {
         return Guild.unset(id, "prefixes");
     }
+
+    static addMutedRole(id, roleID) {
+        return Guild.set(id, "muted.role", roleID);
+    }
+
+    static removeMutedRole(id) {
+        return Guild.unset(id, "muted.role");
+    }
 }
