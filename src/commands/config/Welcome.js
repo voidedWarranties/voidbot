@@ -1,57 +1,69 @@
 import { Command } from "karasu";
-import ConfigManager from "../../internals/ConfigManager";
+import ConfigCommand from "../../internals/ConfigCommand";
+import Guild from "../../database/models/Guild";
 
 export default class WelcomeCommand extends Command {
     constructor(bot) {
         super(bot, "welcome", {
-            permissions: ["manageGuild"],
-            category: "config",
+            description: "Set the welcome message, channel, and type for this guild.",
             guildOnly: true,
-            arguments: [
-                {
-                    type: "channel",
-                    name: "channel"
-                },
-                {
-                    type: "string",
-                    name: "type"
-                },
-                {
-                    type: "string",
-                    name: "image"
-                }
-            ],
+            category: "config",
             subCommands: [
-                new ResetSubCommand()
+                new ChannelSubCommand(bot),
+                new TypeSubCommand(bot),
+                new ImageSubCommand(bot),
+                new TemplateSubCommand(bot)
             ]
         });
     }
 
-    async run(msg, args, { channel, type, image }) {
-        const validTypes = ["text", "image"];
+    async run(msg, args) {
+        if (args[0] == "reset") {
+            await Guild.unset(msg.guildID, "welcome");
 
-        if (!validTypes.includes(type)) return "Invalid type";
-        if (type == "text" && args.length < 1) return "Template is required for this type";
+            return "Reset this guild's welcome configuration";
+        }
 
-        const template = args.join(" ");
-
-        await ConfigManager.addWelcome(msg.guildID, channel.id, type, image, template);
-
-        return "Updated welcome message";
+        return `**Use the following subcommands to configure the welcome message:**
+- reset: Reset all fields
+- channel: Provide a channel to send welcome messages to.
+- type: Set which type of welcome message should be used.
+- image: Set the image for the welcome message.
+- template: Set the template for the welcome message.
+        `;
     }
 }
 
-class ResetSubCommand extends Command {
+class ChannelSubCommand extends ConfigCommand {
     constructor(bot) {
-        super(bot, "reset", {
-            permissions: ["manageGuild"],
-            guildOnly: true
-        });
+        super(bot, "channel", {}, "value", "welcome.channel", "channel");
     }
+}
 
-    async run(msg) {
-        await ConfigManager.removeWelcome(msg.guildID);
+class TypeSubCommand extends ConfigCommand {
+    constructor(bot) {
+        super(bot, "type", {}, "value", "welcome.welcomeType", "string");
+    }
+    
+    argValidator(arg) {
+        const validTypes = ["text", "image"];
 
-        return "Unset welcome message";
+        return validTypes.includes(arg.trim());
+    }
+    
+    invalid() {
+        return "Invalid type, expected `text` or `image`";
+    }
+}
+
+class ImageSubCommand extends ConfigCommand {
+    constructor(bot) {
+        super(bot, "image", {}, "value", "welcome.image", "string");
+    }
+}
+
+class TemplateSubCommand extends ConfigCommand {
+    constructor(bot) {
+        super(bot, "template", {}, "value", "welcome.template", "string");
     }
 }

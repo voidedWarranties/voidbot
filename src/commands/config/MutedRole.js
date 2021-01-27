@@ -1,46 +1,38 @@
 import { Command } from "karasu";
-import ConfigManager from "../../internals/ConfigManager";
+import ConfigCommand from "../../internals/ConfigCommand";
 import Guild from "../../database/models/Guild";
 import { Constants } from "eris";
 
-export default class MutedRoleCommand extends Command {
+export default class MutedRoleCommand extends ConfigCommand {
     constructor(bot) {
         super(bot, "mutedrole", {
-            description: "Set the muted role for this server",
-            permissions: ["manageGuild"],
+            description: "Set the muted role for this server.",
             aliases: ["muted"],
-            category: "config",
+            subCommands: [
+                new OverwriteSubCommand(bot)
+            ]
+        }, "value", "muted.role", "role");
+    }
+}
+
+class OverwriteSubCommand extends Command {
+    constructor(bot) {
+        super(bot, "overwrite", {
+            aliases: ["override"],
             guildOnly: true,
+            permissions: ["manageGuild"],
             arguments: [
                 {
                     type: "string",
                     name: "operation"
-                },
-                {
-                    type: "role",
-                    name: "role",
-                    optional: true
                 }
             ]
         });
     }
 
-    async run(msg, args, { operation, role }) {
+    async run(msg, args, { operation }) {
         switch (operation) {
-        case "set": {
-            if (!role) return "Must provide a role to use!";
-
-            await ConfigManager.addMutedRole(msg.guildID, role.id);
-
-            return "Added muted role";
-        }
-        case "reset": {
-            await ConfigManager.removeMutedRole(msg.guildID);
-
-            return "Removed muted role";
-        }
-        case "overwrite":
-        case "override": {
+        case "setup": {
             var output = "";
 
             const guild = await Guild.findOne({ id: msg.guildID });
@@ -61,8 +53,8 @@ export default class MutedRoleCommand extends Command {
 
             return "Set up channel overrides:\n" + output;
         }
-        case "resetoverwrite":
-        case "resetoverride": {
+
+        case "reset": {
             const guild = await Guild.findOne({ id: msg.guildID });
 
             const channels = msg.channel.guild.channels.filter(c => c.type === Constants.ChannelTypes.GUILD_TEXT);
@@ -72,8 +64,9 @@ export default class MutedRoleCommand extends Command {
 
             return "Reset all channel overwrites for muted role";
         }
+
         default:
-            return "Invalid operation: expected `set`, `reset`, `override`, or `resetoverride`";
+            return "Invalid operation, expected `setup` or `reset`";
         }
     }
 }
