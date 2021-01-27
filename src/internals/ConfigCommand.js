@@ -102,7 +102,11 @@ export default class ConfigCommand extends Command {
 
     async run(msg, args, { operation, value }) {
         if (value && this.argProp) value = value[this.argProp];
-        if (this.argType === "string") value += " " + args.join(" ");
+        if (this.argType === "string") {
+            value += " " + args.join(" ");
+            value = value.trim();
+        }
+
         if (this.argValidator && !this.argValidator(value) && this.invalid) return this.invalid();
 
         switch (this.kind) {
