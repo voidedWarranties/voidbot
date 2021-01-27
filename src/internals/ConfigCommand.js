@@ -1,6 +1,22 @@
 import { Command } from "karasu";
 import Guild from "../database/models/Guild";
 
+function getValidator(kind) {
+    switch (kind) {
+    case "value":
+        return ["set", {
+            value: "reset",
+            aliases: ["unset"]
+        }];
+
+    case "array":
+        return ["add", "remove", {
+            value: "reset",
+            aliases: ["unset"]
+        }];
+    }
+}
+
 export default class ConfigCommand extends Command {
     constructor(bot, label, options, kind, dbKey, argType, argProp = null) {
         if (argProp == null) {
@@ -20,8 +36,9 @@ export default class ConfigCommand extends Command {
             category: "config",
             arguments: [
                 {
-                    type: "string",
-                    name: "operation"
+                    type: "option",
+                    name: "operation",
+                    validator: getValidator(kind)
                 },
                 {
                     type: argType,
@@ -50,14 +67,10 @@ export default class ConfigCommand extends Command {
 
             return `Set \`${this.dbKey}\` to ${value}`;
 
-        case "unset":
         case "reset":
             await Guild.unset(guildID, this.dbKey);
 
             return `Reset \`${this.dbKey}\``;
-
-        default:
-            return "Invalid operation, expected `set` or `reset`";
         }
     }
 
@@ -79,15 +92,11 @@ export default class ConfigCommand extends Command {
             return `Removed \`${value}\` from \`${this.dbKey}\`, current values: ${this._arrayString(doc[this.dbKey])}`;
         }
 
-        case "unset":
         case "reset": {
             await Guild.unset(guildID, this.dbKey);
 
             return `Reset \`${this.dbKey}\``;
         }
-
-        default:
-            return "Invalid operation, expected `set`, `remove`, or `reset`";
         }
     }
 
@@ -99,6 +108,7 @@ export default class ConfigCommand extends Command {
         switch (this.kind) {
         case "array":
             return await this.runArray(msg.guildID, operation, value);
+
         case "value":
             return await this.runValue(msg.guildID, operation, value);
         }
