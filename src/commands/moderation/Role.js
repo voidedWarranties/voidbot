@@ -25,45 +25,69 @@ export default class RoleCommand extends Command {
                 },
                 {
                     type: "member",
-                    name: "member"
+                    acceptMultiple: true,
+                    name: "members"
                 },
                 {
                     type: "role",
-                    name: "role"
+                    acceptMultiple: true,
+                    limit: 3,
+                    name: "roles"
                 }
             ],
             usages: [
-                "role <user> <role> (reason)",
-                "role <operation: add/remove> <user> <role> (reason)"
+                "role <user(s)> <role(s)> (reason)",
+                "role <operation: add/remove> <user(s)> <role(s)> (reason)",
+                "role remove user1;user2 role1;role2",
+                "role user1;user2 \"role;role with spaces\""
             ]
         });
     }
 
-    async run(msg, args, { operation, member, role }) {
+    async run(msg, args, { operation, members, roles }) {
         const reason = args.join(" ");
 
-        const displayName = member.nick || member.username;
+        var output = "Performed operations:\n";
+        var permissionsFailed = false;
 
-        const hasRole = member.roles.includes(role.id);
+        for (const member of members) {
+            const displayName = member.nick || member.username;
+            const rolesAffected = [];
 
-        switch (operation) {
-        case "remove":
-            if (hasRole) {
-                await member.removeRole(role.id, reason);
+            for (const role of roles) {
+                const hasRole = member.roles.includes(role.id);
 
-                return `Removed \`${role.name}\` from ${displayName}`;
+                const result = await this.bot._tryPerms(async () => {
+                    if (operation === "remove" && hasRole) {
+                        await member.removeRole(role.id, reason);
+
+                        rolesAffected.push(role.name);
+                    } else if (operation !== "remove" && !hasRole) {
+                        await member.addRole(role.id, reason);
+
+                        rolesAffected.push(role.name);
+                    }
+                });
+
+                if (!result && !permissionsFailed) {
+                    permissionsFailed = true;
+
+                    output += "* Some operations could not be performed - check permissions.\n";
+                }
             }
 
-            return `${displayName} does not have \`${role.name}\`!`;
+            output += `- **${displayName}**: `;
 
-        default:
-            if (!hasRole) {
-                await member.addRole(role.id, reason);
-
-                return `Gave \`${role.name}\` to ${displayName}`;
+            if (!rolesAffected.length) {
+                output += "Nothing changed\n";
+                continue;
             }
 
-            return `${displayName} already has \`${role.name}\`!`;
+            const affectedFormatted = rolesAffected.map(r => `\`${r}\``).join(", ");
+
+            output += operation === "remove" ? `Removed ${affectedFormatted}\n` : `Added ${affectedFormatted}\n`;
         }
+
+        return output;
     }
 }
