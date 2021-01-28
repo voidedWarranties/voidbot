@@ -7,8 +7,8 @@ export default class MuteCommand extends Command {
             permissions: ["manageRoles"],
             arguments: [
                 {
-                    type: "user",
-                    name: "user"
+                    type: "member",
+                    name: "member"
                 },
                 {
                     type: "time",
@@ -19,14 +19,14 @@ export default class MuteCommand extends Command {
         });
     }
 
-    async run(msg, args, { user, duration }) {
+    async run(msg, args, { member, duration }) {
         const reason = args.join(" ");
 
-        const result = await this.bot.modlogMute(msg.channel.guild, user, msg.author, reason, duration);
+        const result = await this.bot.modlogMute(msg.channel.guild, member, msg.author, reason, duration);
 
         if (!result)
             return "Failed to mute user - check permissions and role setup";
 
-        return `Muted user ${user.username}`;
+        return `Muted user ${member.username}`;
     }
 }

@@ -96,36 +96,32 @@ export default class BotClient extends Client {
         });
     }
 
-    modlogMute(guild, user, mod, reason = "", duration = 0) {
+    modlogMute(guild, member, mod, reason = "", duration = 0) {
         return this._tryPerms(async () => {
             const dbGuild = await Guild.findOne({ id: guild.id });
 
             if (!dbGuild.muted.role) return false;
-
-            const [member] = await guild.fetchMembers({ userIDs: [user.id] });
 
             await member.addRole(dbGuild.muted.role, reason);
 
             if (duration)
-                this.agenda.schedule(Date.now() + (duration * 1000), "unmute", { guild: guild.id, mod: mod.id, user: user.id, role: dbGuild.muted.role });
+                this.agenda.schedule(Date.now() + (duration * 1000), "unmute", { guild: guild.id, mod: mod.id, user: member.id, role: dbGuild.muted.role });
 
-            await addCase(guild, actionTypes.mute, mod, user, reason, true);
+            await addCase(guild, actionTypes.mute, mod, member, reason, true);
         });
     }
 
-    modlogUnmute(guild, user, mod, reason = "") {
+    modlogUnmute(guild, member, mod, reason = "") {
         return this._tryPerms(async () => {
             const dbGuild = await Guild.findOne({ id: guild.id });
 
             if (!dbGuild.muted.role) return false;
-
-            const [member] = await guild.fetchMembers({ userIDs: [user.id] });
 
             if (!member.roles.includes(dbGuild.muted.role)) return false;
 
             await member.removeRole(dbGuild.muted.role, reason);
 
-            await addCase(guild, actionTypes.unmute, mod, user, reason, true);
+            await addCase(guild, actionTypes.unmute, mod, member, reason, true);
         });
     }
 }

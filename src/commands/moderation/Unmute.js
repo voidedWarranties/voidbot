@@ -7,21 +7,21 @@ export default class UnmuteCommand extends Command {
             permissions: ["manageRoles"],
             arguments: [
                 {
-                    type: "user",
-                    name: "user"
+                    type: "member",
+                    name: "member"
                 }
             ]
         });
     }
 
-    async run(msg, args, { user }) {
+    async run(msg, args, { member }) {
         const reason = args.join(" ");
 
-        const result = await this.bot.modlogUnmute(msg.channel.guild, user, msg.author, reason);
+        const result = await this.bot.modlogUnmute(msg.channel.guild, member, msg.author, reason);
 
         if (!result)
             return "Failed to unmute user - check permissions - are they muted?";
 
-        return `Unmuted user ${user.username}`;
+        return `Unmuted user ${member.username}`;
     }
 }
