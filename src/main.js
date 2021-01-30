@@ -8,7 +8,7 @@ const defaultPrefix = process.env.PREFIX || "!";
 const bot = new BotClient(process.env.TOKEN, {
     maxShards: "auto",
     intents: [
-        "guilds", "guildMembers", "guildBans", "guildMessages", "guildMessageReactions", "directMessages", "directMessageReactions"
+        "guilds", "guildMembers", "guildVoiceStates", "guildBans", "guildMessages", "guildMessageReactions", "directMessages", "directMessageReactions"
     ]
 }, {
     owner: process.env.OWNER,

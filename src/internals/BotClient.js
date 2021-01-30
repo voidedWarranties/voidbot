@@ -6,10 +6,13 @@ import agenda from "../database/agenda";
 import startIPC from "./ipc";
 import { addCase, actionTypes } from "./Modlog";
 import Guild from "../database/models/Guild";
+import ConnectionManager from "../internals/ConnectionManager";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
         super(token, options, commandOptions);
+
+        this.voice = new ConnectionManager(this);
 
         this.commandRegistry.registerDirectory(path.join(__dirname, "../commands"));
         this.addEventsIn(path.join(__dirname, "../events"));
