@@ -15,7 +15,10 @@ class ChannelStream extends PassThrough {
         this.connection = connection;
 
         this.queue = [];
+        this.playingIdx = 0;
+
         this.repeat = false;
+        this.repeatQueue = false;
     }
 
     setConnection(connection) {
@@ -33,6 +36,8 @@ class ChannelStream extends PassThrough {
         this.playingStream = null;
         this.current = {};
 
+        if (!this.repeatQueue) this.playingIdx = 0;
+
         this.seekHandler = null;
         this.paused = false;
     }
@@ -46,9 +51,20 @@ class ChannelStream extends PassThrough {
             this._play(this.current);
         }
 
-        if (this.queue.length === 0) return;
+        let toPlay;
+        if (this.repeatQueue) {
+            this.queue.splice(this.playingIdx, 0, this.current);
 
-        this._play(this.queue.shift());
+            this.playingIdx = (this.playingIdx + 1) % this.queue.length;
+
+            toPlay = this.queue.splice(this.playingIdx, 1)[0];
+        } else {
+            if (this.queue.length === 0) return;
+
+            toPlay = this.queue.shift();
+        }
+
+        this._play(toPlay);
     }
 
     _play(info) {
