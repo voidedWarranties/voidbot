@@ -71,8 +71,9 @@ class ChannelStream extends PassThrough {
         this.stop(false);
 
         this.current = Object.assign(info, {
-            timeStart: 0,
-            timeElapsed: 0
+            timeStart: Date.now(),
+            timeElapsed: 0,
+            ended: false
         });
 
         this.playingStream = info.stream.rewind();
@@ -81,10 +82,11 @@ class ChannelStream extends PassThrough {
         this.playingStream.once("end", () => {
             log.debug(`Stream on ${this.name} ended in ${this.connection.channelID}, removing`);
 
+            this.current.ended = true;
+
             setTimeout(this.dequeue.bind(this), 2000);
         });
 
-        this.current.timeStart = Date.now();
     }
 
     async play(source) {
@@ -122,7 +124,7 @@ class ChannelStream extends PassThrough {
             })).pipe(new ReReadable());
         }
 
-        if (!this.repeat && this.playingStream) {
+        if (!this.repeat && this.current.timeStart && !this.current.ended) {
             this.queue.push(info);
 
             log.debug(`Enqueued ${info.sourceName} on ${this.name}`);
