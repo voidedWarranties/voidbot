@@ -31,11 +31,7 @@ class ChannelStream extends PassThrough {
         if (flush) this.read();
 
         this.playingStream = null;
-        this.timeStart = 0;
-        this.timeElapsed = 0;
-        this.duration = 0;
-        this.source = null;
-        this.rewindStream = null;
+        this.current = {};
 
         this.seekHandler = null;
         this.paused = false;
@@ -47,72 +43,23 @@ class ChannelStream extends PassThrough {
 
     dequeue() {
         if (this.repeat) {
-            this.play(this.rewindStream);
+            this._play(this.current);
         }
-
-        this.stop(false);
 
         if (this.queue.length === 0) return;
 
-        const { rewindStream, duration, source } = this.queue.shift();
-
-        this.play(rewindStream);
-        this.duration = duration;
-        this.source = source;
+        this._play(this.queue.shift());
     }
 
-    async play(source) {
-        let stream;
-        let duration;
-        let sourceName = null;
+    _play(info) {
+        this.stop(false);
 
-        if (typeof source === "string") {
-            const url = URL.parse(source);
+        this.current = Object.assign(info, {
+            timeStart: 0,
+            timeElapsed: 0
+        });
 
-            if (url.hostname === "www.youtube.com") {
-                const info = await ytdl.getInfo(source);
-
-                duration = Math.max(...info.formats.map(f => parseInt(f.approxDurationMs)));
-
-                stream = ytdl.downloadFromInfo(info, { quality: "highestaudio" });
-            } else if (url.hostname === "cdn.discordapp.com") {
-                const res = await axios.get(source, { responseType: "stream" });
-
-                stream = res.data;
-
-                duration = await audioDuration(source).catch(() => duration = 0);
-            } else {
-                return false;
-            }
-
-            sourceName = source;
-        } else {
-            stream = source;
-        }
-
-        if (!stream.rewind)
-            stream = stream.pipe(new ReReadable());
-
-        if (!this.repeat && this.playingStream) {
-            this.queue.push({
-                rewindStream: stream,
-                duration,
-                source: sourceName
-            });
-
-            log.debug(`Enqueued ${sourceName} on ${this.name}`);
-
-            return true;
-        }
-
-        this.duration = duration;
-        this.source = source;
-        this.rewindStream = stream;
-
-        this.playingStream = stream.rewind().pipe(new FFmpegPCMTransformer({
-            command: this.connection.piper.converterCommand
-        }));
-
+        this.playingStream = info.stream.rewind();
         this.playingStream.pipe(this, { end: false });
 
         this.playingStream.once("end", () => {
@@ -121,7 +68,53 @@ class ChannelStream extends PassThrough {
             setTimeout(this.dequeue.bind(this), 2000);
         });
 
-        this.timeStart = Date.now();
+        this.current.timeStart = Date.now();
+    }
+
+    async play(source) {
+        const info = {};
+
+        if (typeof source === "string") {
+            const url = URL.parse(source);
+
+            if (url.hostname === "www.youtube.com") {
+                const info = await ytdl.getInfo(source);
+
+                info.duration = Math.max(...info.formats.map(f => parseInt(f.approxDurationMs)));
+
+                info.stream = ytdl.downloadFromInfo(info, { quality: "highestaudio" });
+            } else if (url.hostname === "cdn.discordapp.com") {
+                const res = await axios.get(source, { responseType: "stream" });
+
+                info.stream = res.data;
+
+                info.duration = await audioDuration(source).catch(() => info.duration = 0);
+            } else {
+                return false;
+            }
+
+            info.sourceName = source;
+        } else {
+            info.stream = source;
+
+            info.sourceName = null;
+        }
+
+        if (!info.stream.rewind) {
+            info.stream = info.stream.pipe(new FFmpegPCMTransformer({
+                command: this.connection.piper.converterCommand
+            })).pipe(new ReReadable());
+        }
+
+        if (!this.repeat && this.playingStream) {
+            this.queue.push(info);
+
+            log.debug(`Enqueued ${info.sourceName} on ${this.name}`);
+
+            return true;
+        }
+
+        this._play(info);
 
         return true;
     }
@@ -130,7 +123,7 @@ class ChannelStream extends PassThrough {
         const buf = this.read(bytes);
 
         if (buf) {
-            this.timeElapsed += ms;
+            this.current.timeElapsed += ms;
             return buf;
         }
     }

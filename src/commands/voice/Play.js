@@ -17,6 +17,6 @@ export default class PlayCommand extends VoiceCommand {
         if (!res)
             return "Invalid source - check URL";
 
-        return `Playing resource with ${ctx.stream.get("music").duration}ms duration`;
+        return `Playing resource with ${ctx.stream.get("music").current.duration}ms duration`;
     }
 }
