@@ -6,10 +6,16 @@ export default class ConnectionManager {
         this.bot = bot;
 
         this.streams = {};
+        this.unregisterHandlers = {};
     }
 
     async join(guildID, channelID) {
         const connection = await this.bot.joinVoiceChannel(channelID);
+
+        if (this.unregisterHandlers[guildID]) {
+            this.unregisterHandlers[guildID]();
+            delete this.unregisterHandlers[guildID];
+        }
 
         if (!this.streams[guildID]) {
             this.streams[guildID] = new MergingStream(connection);
@@ -21,8 +27,15 @@ export default class ConnectionManager {
 
         this.streams[guildID].play();
 
-        connection.once("disconnect", () => this.disconnect(guildID));
-        connection.once("error", () => this.disconnect(guildID));
+        const disconnectHandler = () => this.disconnect(guildID);
+
+        connection.once("disconnect", disconnectHandler);
+        connection.once("error", disconnectHandler);
+
+        this.unregisterHandlers[guildID] = () => {
+            connection.off("disconnect", disconnectHandler);
+            connection.off("error", disconnectHandler);
+        };
     }
 
     getStream(guildID) {
