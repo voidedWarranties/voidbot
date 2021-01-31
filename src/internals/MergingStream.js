@@ -6,6 +6,7 @@ import axios from "axios";
 import ytdl from "ytdl-core";
 import URL from "url";
 import audioDuration from "../util/AudioDuration";
+import shuffle from "knuth-shuffle-seeded";
 
 class ChannelStream extends PassThrough {
     constructor(name, connection, opt = {}) {
@@ -19,6 +20,7 @@ class ChannelStream extends PassThrough {
 
         this.repeat = false;
         this.repeatQueue = false;
+        this.shuffle = false;
     }
 
     setConnection(connection) {
@@ -52,7 +54,16 @@ class ChannelStream extends PassThrough {
         }
 
         let toPlay;
-        if (this.repeatQueue) {
+        if (this.shuffle) {
+            const maxPlayCount = Math.max(this.queue.map(s2 => s2.playCount));
+            const shuffleQueue = this.queue.slice(0);
+            shuffle(shuffleQueue);
+            toPlay = shuffleQueue.find(s => !s.playCount || s.playCount <= maxPlayCount);
+
+            if (!this.repeatQueue) {
+                this.queue.splice(this.queue.indexOf(toPlay), 1);
+            }
+        } else if (this.repeatQueue) {
             this.queue.splice(this.playingIdx, 0, this.current);
 
             this.playingIdx = (this.playingIdx + 1) % this.queue.length;
@@ -87,6 +98,8 @@ class ChannelStream extends PassThrough {
             setTimeout(this.dequeue.bind(this), 2000);
         });
 
+        this.current.playCount = this.current.playCount || 0;
+        this.current.playCount++;
     }
 
     async play(source) {
