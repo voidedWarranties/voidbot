@@ -51,21 +51,30 @@ class ChannelStream extends PassThrough {
     dequeue() {
         if (this.repeat) {
             this._play(this.current);
+            return;
+        }
+
+        if (this.repeatQueue) {
+            this.queue.splice(this.shuffle ? 0 : this.playingIdx, 0, this.current);
         }
 
         let toPlay;
         if (this.shuffle) {
-            const maxPlayCount = Math.max(this.queue.map(s2 => s2.playCount));
+            const maxPlayCount = Math.max(0, Math.max(...this.queue.filter(s => s.playCount).map(s => s.playCount)));
             const shuffleQueue = this.queue.slice(0);
             shuffle(shuffleQueue);
-            toPlay = shuffleQueue.find(s => !s.playCount || s.playCount <= maxPlayCount);
 
-            if (!this.repeatQueue) {
-                this.queue.splice(this.queue.indexOf(toPlay), 1);
+            for (const s of shuffleQueue) {
+                if (!s.playCount || s.playCount < maxPlayCount) {
+                    toPlay = s;
+                    break;
+                }
             }
-        } else if (this.repeatQueue) {
-            this.queue.splice(this.playingIdx, 0, this.current);
 
+            if (!toPlay) toPlay = shuffleQueue.find(s => s.playCount === maxPlayCount);
+
+            this.queue.splice(this.queue.indexOf(toPlay), 1);
+        } else if (this.repeatQueue) {
             this.playingIdx = (this.playingIdx + 1) % this.queue.length;
 
             toPlay = this.queue.splice(this.playingIdx, 1)[0];
@@ -137,7 +146,7 @@ class ChannelStream extends PassThrough {
             })).pipe(new ReReadable());
         }
 
-        if (!this.repeat && this.current.timeStart && !this.current.ended) {
+        if (this.current.timeStart && !this.current.ended) {
             this.queue.push(info);
 
             log.debug(`Enqueued ${info.sourceName} on ${this.name}`);
