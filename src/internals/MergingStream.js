@@ -1,4 +1,5 @@
 import { Readable, PassThrough } from "stream";
+import { ReReadable } from "rereadable-stream";
 import FFmpegPCMTransformer from "eris/lib/voice/streams/FFmpegPCMTransformer";
 import log from "../logger";
 import axios from "axios";
@@ -13,12 +14,8 @@ class ChannelStream extends PassThrough {
         this.name = name;
         this.connection = connection;
 
-        this.timeStart = 0;
-        this.timeElapsed = 0;
-        this.duration = 0;
-
-        this.playingStream = null;
-        this.seekHandler = null;
+        this.queue = [];
+        this.repeat = false;
     }
 
     setConnection(connection) {
@@ -37,6 +34,9 @@ class ChannelStream extends PassThrough {
         this.timeStart = 0;
         this.timeElapsed = 0;
         this.duration = 0;
+        this.source = null;
+        this.rewindStream = null;
+
         this.seekHandler = null;
         this.paused = false;
     }
@@ -45,44 +45,80 @@ class ChannelStream extends PassThrough {
         return this.seekHandler !== null ? this.seekHandler(seconds) : false;
     }
 
-    async play(source, requestParams = {}) {
-        this.stop();
+    dequeue() {
+        if (this.repeat) {
+            this.play(this.rewindStream);
+        }
 
+        this.stop(false);
+
+        if (this.queue.length === 0) return;
+
+        const { rewindStream, duration, source } = this.queue.shift();
+
+        this.play(rewindStream);
+        this.duration = duration;
+        this.source = source;
+    }
+
+    async play(source) {
         let stream;
+        let duration;
+        let sourceName = null;
 
         if (typeof source === "string") {
             const url = URL.parse(source);
 
             if (url.hostname === "www.youtube.com") {
-                const opts = Object.assign({ quality: "highestaudio" }, requestParams);
-                const info = await ytdl.getInfo(source, opts);
+                const info = await ytdl.getInfo(source);
 
-                this.duration = Math.max(...info.formats.map(f => parseInt(f.approxDurationMs)));
+                duration = Math.max(...info.formats.map(f => parseInt(f.approxDurationMs)));
 
-                stream = ytdl.downloadFromInfo(info, opts);
+                stream = ytdl.downloadFromInfo(info, { quality: "highestaudio" });
             } else if (url.hostname === "cdn.discordapp.com") {
                 const res = await axios.get(source, { responseType: "stream" });
 
                 stream = res.data;
 
-                this.duration = await audioDuration(source).catch(() => this.duration = 0);
+                duration = await audioDuration(source).catch(() => duration = 0);
             } else {
                 return false;
             }
+
+            sourceName = source;
         } else {
             stream = source;
         }
 
-        this.playingStream = stream.pipe(new FFmpegPCMTransformer({
+        if (!stream.rewind)
+            stream = stream.pipe(new ReReadable());
+
+        if (!this.repeat && this.playingStream) {
+            this.queue.push({
+                rewindStream: stream,
+                duration,
+                source: sourceName
+            });
+
+            log.debug(`Enqueued ${sourceName} on ${this.name}`);
+
+            return true;
+        }
+
+        this.duration = duration;
+        this.source = source;
+        this.rewindStream = stream;
+
+        this.playingStream = stream.rewind().pipe(new FFmpegPCMTransformer({
             command: this.connection.piper.converterCommand
         }));
 
         this.playingStream.pipe(this, { end: false });
 
         this.playingStream.once("end", () => {
-            this.stop(false);
-
             log.debug(`Stream on ${this.name} ended in ${this.connection.channelID}, removing`);
+
+            setTimeout(this.dequeue.bind(this), 2000);
         });
 
         this.timeStart = Date.now();
@@ -134,6 +170,9 @@ export default class MergingStream extends Readable {
     }
 
     setConnection(connection) {
+        if (this.connection.channelID === connection.channelID)
+            return;
+
         this.connection = connection;
         this.reset();
     }

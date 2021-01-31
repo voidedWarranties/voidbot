@@ -46,6 +46,7 @@
     "passport": "^0.4.1",
     "passport-discord": "^0.1.4",
     "readdirp": "^3.5.0",
+    "rereadable-stream": "^1.4.5",
     "translation-google": "^0.2.1",
     "xml2js": "^0.4.23",
     "ytdl-core": "^4.4.5"
