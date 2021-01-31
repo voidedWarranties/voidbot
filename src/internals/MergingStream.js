@@ -90,7 +90,7 @@ class ChannelStream extends PassThrough {
 
                 info.duration = await audioDuration(source).catch(() => info.duration = 0);
             } else {
-                return false;
+                return null;
             }
 
             info.sourceName = source;
@@ -111,12 +111,18 @@ class ChannelStream extends PassThrough {
 
             log.debug(`Enqueued ${info.sourceName} on ${this.name}`);
 
-            return true;
+            return {
+                info,
+                playing: false
+            };
         }
 
         this._play(info);
 
-        return true;
+        return {
+            info,
+            playing: true
+        };
     }
 
     readIncrement(bytes, ms) {
