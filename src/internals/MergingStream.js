@@ -118,11 +118,11 @@ class ChannelStream extends PassThrough {
             const url = URL.parse(source);
 
             if (url.hostname === "www.youtube.com") {
-                const info = await ytdl.getInfo(source);
+                const vidInfo = await ytdl.getInfo(source);
 
-                info.duration = Math.max(...info.formats.map(f => parseInt(f.approxDurationMs)));
+                info.duration = Math.max(...vidInfo.formats.map(f => parseInt(f.approxDurationMs)));
 
-                info.stream = ytdl.downloadFromInfo(info, { quality: "highestaudio" });
+                info.stream = ytdl.downloadFromInfo(vidInfo, { quality: "highestaudio" });
             } else if (url.hostname === "cdn.discordapp.com") {
                 const res = await axios.get(source, { responseType: "stream" });
 
