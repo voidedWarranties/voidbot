@@ -36,6 +36,11 @@ const bot = new BotClient(process.env.TOKEN, {
             description: "Moderate your members"
         },
         {
+            id: "voice",
+            title: "Voice",
+            description: "Voice and music commands"
+        },
+        {
             id: "util",
             title: "Utilities",
             description: "Other commands"

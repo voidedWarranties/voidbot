@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class VoiceCommand extends Command {
     constructor(bot, label, options, autoJoin = true) {
         super(bot, label, Object.assign({
-            category: "config",
+            category: "voice",
             guildOnly: true
         }, options));
 
