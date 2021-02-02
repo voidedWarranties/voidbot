@@ -1355,7 +1355,7 @@
     "@types/bson" "*"
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^14.14.22":
+"@types/node@*", "@types/node@^14.0.1":
   version "14.14.22"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.22.tgz#0d29f382472c4ccf3bd96ff0ce47daf5b7b84b18"
   integrity sha512-g+f/qj/cNcqKkc3tFqlXOYjrmZA+jNBiDzbP3kH+B+otKFqAdPgVTGP1IeKRdMml/aE69as5S4FqtxAbl+LaMw==
@@ -1788,6 +1788,13 @@ anidbjs@^2.4.1:
   dependencies:
     got "^9.3.2"
     xml2js "0.4.19"
+
+another-logger@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/another-logger/-/another-logger-2.0.1.tgz#5becb3c75dcb6fa7487cbb9a5b737f39905adad5"
+  integrity sha512-5Rc0IZDiU3No2Gar32kuX3G/iPzpoNJ+ASE2BNlutNi28cNEk4wJhut6hp6Rw7jD3PHSJtkpM6ENqSNsfg+T9g==
+  dependencies:
+    chalk "^2.4.1"
 
 another-logger@^3.0.0:
   version "3.0.0"
@@ -2653,7 +2660,7 @@ chokidar@^2.1.8:
   optionalDependencies:
     fsevents "^1.2.7"
 
-chokidar@^3.4.1, chokidar@^3.4.3, chokidar@^3.5.1:
+chokidar@^3.4.0, chokidar@^3.4.1, chokidar@^3.4.3, chokidar@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.1.tgz#ee9ce7bbebd2b79f49f304799d5468e31e14e68a"
   integrity sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw==
@@ -3782,17 +3789,10 @@ env-paths@^2.2.0:
   resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.2.0.tgz#cdca557dc009152917d6166e2febe1f039685e43"
   integrity sha512-6u0VYSCo/OW6IoD5WCLLy9JUGARbamfSavcNXry/eu8aHVFei6CD3Sw+VGX5alea1i9pgPHW0mbu6Xj0uBh7gA==
 
-eris-additions@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/eris-additions/-/eris-additions-1.4.1.tgz#afa7d5846386a5bc65fc623350edb09a77537e17"
-  integrity sha512-ZaAvQKZjXWOJB653RCKsdYMgJH+vXqdjjv/wTVtmFTUvaRdehON3x/yU/YseQwpoTwQVhOBLofTu6fdz0KzZmQ==
-  dependencies:
-    eris "^0.12.0"
-
-eris@^0.12.0:
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/eris/-/eris-0.12.1.tgz#2d99ba07dabcfce3a2645e9561e6ea3f39bec61c"
-  integrity sha512-6TNeDct84dk8JGMaYRf4Q+27Suf+g/3bWPyqyKTdaR6nlDKYuo/IcfVHAyaGAgCmA2QcpuSNxynRRfhdhKsHUA==
+eris@^0.13.1:
+  version "0.13.4"
+  resolved "https://registry.yarnpkg.com/eris/-/eris-0.13.4.tgz#06159ff619446046e392e28a70667d73c27aa631"
+  integrity sha512-IFA14nasCig8xp8cVCULvzBuJ0qpYqJ3XyEtm9OLdC177DYDCJ9QM2Aq+KOpejIVl7838n9AyRlLI6w9Eu3PiQ==
   dependencies:
     ws "^7.2.1"
   optionalDependencies:
@@ -8365,7 +8365,7 @@ readdirp@^2.2.1:
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
 
-readdirp@^3.5.0, readdirp@~3.5.0:
+readdirp@^3.4.0, readdirp@^3.5.0, readdirp@~3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/readdirp/-/readdirp-3.5.0.tgz#9ba74c019b15d365278d2e91bb8c48d7b4d42c9e"
   integrity sha512-cMhu7c/8rdhkHXWsY+osBhfSy0JikwpHK/5+imo+LpeasTF8ouErHrlYkwT0++njiyuDvc7OFY5T3ukvZ8qmFQ==
