@@ -89,3 +89,6 @@ Do not request more than 1 anime over 2 seconds
 Try to spread out querying AniDB data, as it is easy to get banned
 
 Running the same AniDB query twice in a day can cause you to get banned, so `index` will refuse to load it again until at least 7 days have passed.
+
+# License
+See the [LICENSE](LICENSE) file
