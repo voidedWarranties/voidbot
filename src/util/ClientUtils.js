@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import { Jikan } from "node-myanimelist";
 import log from "../logger";
 
@@ -43,27 +42,4 @@ export async function createSearchEmbed(docs, idx, image = null, total = 1) {
         footer.push(`Search result ${idx + 1} / ${docs.length}`);
     }
     return Object.assign(await createEmbed(docs[idx], image), { footer: { text: footer.join("; ") } });
-}
-
-export class ReactionCollector extends EventEmitter {
-    constructor(bot, message, time, filter = () => true) {
-        super();
-
-        this.listener = (msg, emoji, user) => {
-            if (msg.id === message.id && filter(msg)) {
-                this.emit("reaction", msg, emoji, user);
-            }
-        };
-
-        this.reset = function () {
-            bot.removeListener("messageReactionAdd", this.listener);
-        };
-
-        bot.on("messageReactionAdd", this.listener);
-
-        setTimeout(() => {
-            this.emit("end");
-            this.reset();
-        }, time);
-    }
 }

@@ -87,12 +87,14 @@ class IndexedCommand extends Command {
 
         const characters = main.concat(secondary).concat(appears).concat(cameo);
 
-        msg.channel.createEmbed({
-            title: `${result.title_en} (${result.title_jp})`,
-            thumbnail: {
-                url: result.thumbnail
-            },
-            description: characters.slice(0, 25).map(c => `${c.name} ${getEmoji(c)}`).join("\n")
+        msg.channel.createMessage({
+            embed: {
+                title: `${result.title_en} (${result.title_jp})`,
+                thumbnail: {
+                    url: result.thumbnail
+                },
+                description: characters.slice(0, 25).map(c => `${c.name} ${getEmoji(c)}`).join("\n")
+            }
         });
     }
 }

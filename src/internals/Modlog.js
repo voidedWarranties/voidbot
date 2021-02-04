@@ -15,25 +15,27 @@ export async function addCase(guild, type, modUser, targetUser, reason, bot = fa
 
     const channel = guild.channels.find(c => c.id === guildDb.modlog.channel);
 
-    const msg = await channel.createEmbed({
-        title: `**${type}**: Case ${guildDb.modlog.cases.length + 1}`,
-        author: {
-            name: bot ? `${modUser.username}, via bot` : modUser.username,
-            icon_url: modUser.avatarURL
-        },
-        thumbnail: {
-            url: targetUser.avatarURL
-        },
-        fields: [
-            {
-                name: "Target",
-                value: `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`
+    const msg = await channel.createMessage({
+        embed: {
+            title: `**${type}**: Case ${guildDb.modlog.cases.length + 1}`,
+            author: {
+                name: bot ? `${modUser.username}, via bot` : modUser.username,
+                icon_url: modUser.avatarURL
             },
-            {
-                name: "Reason",
-                value: reason || "*No reason specified*"
-            }
-        ]
+            thumbnail: {
+                url: targetUser.avatarURL
+            },
+            fields: [
+                {
+                    name: "Target",
+                    value: `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`
+                },
+                {
+                    name: "Reason",
+                    value: reason || "*No reason specified*"
+                }
+            ]
+        }
     });
 
     guildDb.modlog.cases.push(msg.id);

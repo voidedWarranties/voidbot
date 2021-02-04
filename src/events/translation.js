@@ -19,16 +19,18 @@ export async function messageReactionAdd(msg, emoji, reactorObj) {
 
     const reactor = (await msg.channel.guild.fetchMembers({ userIDs: [reactorObj.id] }))[0];
 
-    msg.channel.createEmbed({
-        title: `Translation: ${getFlag(res.from.language.iso)} :arrow_right: ${flag}`,
-        author: {
-            name: msg.author.username,
-            icon_url: msg.author.avatarURL
-        },
-        description: res.text,
-        footer: {
-            text: `Requested by: ${reactor.username}`,
-            icon_url: reactor.avatarURL
+    msg.channel.createMessage({
+        embed: {
+            title: `Translation: ${getFlag(res.from.language.iso)} :arrow_right: ${flag}`,
+            author: {
+                name: msg.author.username,
+                icon_url: msg.author.avatarURL
+            },
+            description: res.text,
+            footer: {
+                text: `Requested by: ${reactor.username}`,
+                icon_url: reactor.avatarURL
+            }
         }
     });
 }

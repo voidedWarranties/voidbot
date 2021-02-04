@@ -36,23 +36,29 @@ class VerifyCommand extends Command {
 
             const user = this.bot.users.find(user => user.id === submission.user_id);
 
-            await msg.channel.createEmbed({
-                title: `${character.name} from ${character.animes.map(a => a.title).join(", ")}`,
-                image: {
-                    url: character.photos[0]
-                },
-                footer: {
-                    icon_url: user.avatarURL,
-                    text: `Submitted by ${user.username}#${user.discriminator}`
+            await msg.channel.createMessage({
+                embed: {
+                    title: `${character.name} from ${character.animes.map(a => a.title).join(", ")}`,
+                    image: {
+                        url: character.photos[0]
+                    },
+                    footer: {
+                        icon_url: user.avatarURL,
+                        text: `Submitted by ${user.username}#${user.discriminator}`
+                    }
                 }
             });
 
             await msg.channel.createMessage(`https://myanimelist.net/character/${submission.mal_id}`);
 
-            const responses = await msg.channel.awaitMessages(m => m.author.id === msg.author.id, { time: 120000, maxMatches: 1 });
+            let response = await this.bot.collectorManager.awaitMessages({
+                limit: 1,
+                timeout: 120000,
+                filter: m => m.author.id === msg.author.id && m.channel.id === msg.channel.id
+            });
 
-            if (responses.length) {
-                const response = responses[0].content;
+            if (response) {
+                response = response.content;
 
                 if (response === "ok") {
                     character.mal_id = submission.mal_id;

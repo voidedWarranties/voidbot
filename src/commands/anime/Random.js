@@ -13,6 +13,6 @@ export default class RandomCommand extends Command {
         var character = await Character.random({ gender: "female" });
         character = await addPictures(character);
 
-        msg.channel.createEmbed(await createEmbed(character));
+        msg.channel.createMessage({ embed: await createEmbed(character) });
     }
 }

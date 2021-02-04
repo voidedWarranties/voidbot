@@ -1,6 +1,6 @@
 import { Command } from "karasu";
 import Character from "../../database/models/Character";
-import { createSearchEmbed, ReactionCollector, addPictures } from "../../util/ClientUtils";
+import { createSearchEmbed, addPictures } from "../../util/ClientUtils";
 
 const seekBack = "⏪";
 const seekFwd = "⏩";
@@ -24,7 +24,7 @@ export default class ImageCommand extends Command {
 
             docs[0] = await addPictures(docs[0]);
 
-            var message = await msg.channel.createEmbed(await createSearchEmbed(docs, 0, 0, docs[0].photos.length));
+            var message = await msg.channel.createMessage({ embed: await createSearchEmbed(docs, 0, 0, docs[0].photos.length) });
 
             if (!(docs.length <= 1 && docs[0].photos.length <= 1)) {
                 await message.addReaction(leftArrow);
@@ -36,13 +36,18 @@ export default class ImageCommand extends Command {
                 await message.addReaction(seekFwd);
             }
 
-            const collector = new ReactionCollector(this.bot, message, 120000);
+            const collector = this.bot.collectorManager.awaitReactions({
+                limit: -1,
+                event: true,
+                timeout: 120000,
+                filter: r => r.msg.id === message.id && r.reactor.id === msg.author.id,
+            });
 
             var idx = 0;
             var picIdx = 0;
 
-            collector.on("reaction", async (msg, emoji, user) => {
-                if (user === this.bot.user.id) return;
+            collector.on("received", async ({ msg, emoji, reactor }) => {
+                if (reactor === this.bot.user.id) return;
 
                 emoji = emoji.name;
 
@@ -50,7 +55,7 @@ export default class ImageCommand extends Command {
 
                 if (!reactions.find(r => r.id === this.bot.user.id)) return;
 
-                msg.removeReaction(emoji, user);
+                msg.removeReaction(emoji, reactor.id);
 
                 docs[idx] = await addPictures(docs[idx]);
 
