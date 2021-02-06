@@ -44,11 +44,15 @@ class ChannelStream extends PassThrough {
         this.paused = false;
     }
 
+    skip() {
+        this.dequeue(true);
+    }
+
     seek(seconds) { // TODO
         return this.seekHandler !== null ? this.seekHandler(seconds) : false;
     }
 
-    dequeue() {
+    dequeue(flush = false) {
         if (this.repeat) {
             this._play(this.current);
             return;
@@ -79,16 +83,17 @@ class ChannelStream extends PassThrough {
 
             toPlay = this.queue.splice(this.playingIdx, 1)[0];
         } else {
-            if (this.queue.length === 0) return;
-
             toPlay = this.queue.shift();
         }
 
-        this._play(toPlay);
+        if (toPlay)
+            this._play(toPlay, flush);
+        else
+            this.stop(flush);
     }
 
-    _play(info) {
-        this.stop(false);
+    _play(info, flush = false) {
+        this.stop(flush);
 
         this.current = Object.assign(info, {
             timeStart: Date.now(),

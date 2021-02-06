@@ -44,31 +44,6 @@ export default class ConnectionManager {
         return stream || null;
     }
 
-    play(guildID, channel, source, requestParams = {}) {
-        const s = this.getStream(guildID);
-        if (s) return s.get(channel).play(source, requestParams);
-    }
-
-    stop(guildID, channel) {
-        const s = this.getStream(guildID);
-        if (s) s.get(channel).stop();
-    }
-
-    pause(guildID, channel) {
-        const s = this.getStream(guildID);
-        if (s) s.get(channel).pause();
-    }
-
-    resume(guildID, channel) {
-        const s = this.getStream(guildID);
-        if (s) s.get(channel).resume();
-    }
-
-    seek(guildID, channel, seconds) {
-        const s = this.getStream(guildID);
-        if (s) return s.get(channel).seek(seconds);
-    }
-
     disconnect(guildID) {
         log.debug(`Destroying connection and stream for guild ${guildID}`);
 

@@ -37,19 +37,44 @@ export default class VoiceCommand extends Command {
             args,
             stream: voiceStream,
             play: (channel, stream) => {
-                return this.voice.play(msg.guildID, channel, stream);
+                return voiceStream.get(channel).play(stream);
             },
-            pause: channel => {
-                this.voice.pause(msg.guildID, channel);
+            setPaused: (channel, paused) => {
+                const c = voiceStream.get(channel);
+
+                if (c.paused !== paused) {
+                    c.paused = paused;
+                    return true;
+                }
+
+                return false;
             },
-            resume: channel => {
-                this.voice.resume(msg.guildID, channel);
+            toggleRepeat: channel => {
+                const c = voiceStream.get(channel);
+
+                c.repeat = !c.repeat;
+                return c.repeat;
+            },
+            toggleRepeatQueue: channel => {
+                const c = voiceStream.get(channel);
+
+                c.repeatQueue = !c.repeatQueue;
+                return c.repeatQueue;
+            },
+            toggleShuffle: channel => {
+                const c = voiceStream.get(channel);
+
+                c.shuffle = !c.shuffle;
+                return c.shuffle;
             },
             stop: channel => {
-                this.voice.stop(msg.guildID, channel);
+                voiceStream.get(channel).stop();
+            },
+            skip: channel => {
+                voiceStream.get(channel).skip();
             },
             seek: (channel, seconds) => {
-                this.voice.seek(msg.guildID, channel, seconds);
+                voiceStream.get(channel).seek(seconds);
             },
             disconnect: () => {
                 this.voice.disconnect(msg.guildID);
