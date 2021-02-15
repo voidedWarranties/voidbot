@@ -17,7 +17,8 @@ export async function messageReactionAdd(msg, emoji, reactorObj) {
         to: flagDict[flag]
     });
 
-    const reactor = (await msg.channel.guild.fetchMembers({ userIDs: [reactorObj.id] }))[0];
+    const reactorID = reactorObj.id || reactorObj;
+    const [reactor] = await msg.channel.guild.fetchMembers({ userIDs: [reactorID] });
 
     msg.channel.createMessage({
         embed: {
