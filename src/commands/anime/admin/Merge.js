@@ -6,6 +6,7 @@ const mergeFile = "../../../../cache/merges";
 export default class MergeCommand extends Command {
     constructor(bot) {
         super(bot, "merge", {
+            description: "merge-desc",
             ownerOnly: true,
             subCommands: [
                 new ScanCommand(bot)
@@ -56,6 +57,7 @@ export default class MergeCommand extends Command {
 class ScanCommand extends Command {
     constructor(bot) {
         super(bot, "scan", {
+            description: "merge-scan-desc",
             ownerOnly: true
         });
     }

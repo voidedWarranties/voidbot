@@ -43,6 +43,8 @@ function addAnime(data, characterIds) {
 export default class CacheDBCommand extends Command {
     constructor(bot) {
         super(bot, "cachedb", {
+            description: "cachedb-desc",
+            ownerOnly: true,
             subCommands: [
                 new AnimesCommand(bot)
             ],
@@ -50,7 +52,7 @@ export default class CacheDBCommand extends Command {
         });
     }
 
-    async run(msg, args) {
+    async run(_, args) {
         var changed = 0;
 
         for await (const data of iterateCache(
@@ -93,7 +95,7 @@ export default class CacheDBCommand extends Command {
             }
         }
 
-        return `Populated ${changed} entries from cache.`;
+        return ["cachedb-populated", { changed }];
     }
 }
 
@@ -104,7 +106,7 @@ class AnimesCommand extends Command {
         });
     }
 
-    async run(msg) {
+    async run() {
         var created = 0;
         for await (const data of iterateCache()) {
             const characters = await Character.find({ "animes.id": data.id });
@@ -113,6 +115,6 @@ class AnimesCommand extends Command {
             created++;
         }
 
-        msg.channel.createMessage(`Created ${created} entries.`);
+        return ["cachedb-created", { created }];
     }
 }

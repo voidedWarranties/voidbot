@@ -23,6 +23,7 @@
     "sass-loader": "^10.1.1"
   },
   "dependencies": {
+    "@fluent/bundle": "^0.16.0",
     "agenda": "^4.0.1",
     "anidbjs": "^2.4.1",
     "another-logger": "^3.0.0",

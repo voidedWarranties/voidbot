@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class SoftbanCommand extends Command {
     constructor(bot) {
         super(bot, "softban", {
-            description: "Kick a member and delete their past messages.",
+            description: "softban-desc",
             permissions: ["banMembers"],
             category: "moderation",
             arguments: [
@@ -25,10 +25,7 @@ export default class SoftbanCommand extends Command {
         const reason = args.join(" ");
 
         if (purge && purge < 0 || purge > 7) {
-            return {
-                status: "huh",
-                message: "Purge duration must be 0-7 days."
-            };
+            return ["purge-duration"];
         }
 
         const result = await this.bot.modlogBan(msg.channel.guild, user, msg.author, reason, 0, purge || 1, true);

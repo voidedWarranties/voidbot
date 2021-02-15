@@ -7,6 +7,7 @@ const customsFile = "../../../../cache/customs";
 export default class CustomsCommand extends Command {
     constructor(bot) {
         super(bot, "customs", {
+            description: "customs-desc",
             ownerOnly: true,
             category: "anime"
         });
@@ -46,6 +47,6 @@ export default class CustomsCommand extends Command {
             }, { upsert: true, new: true });
         }
 
-        return `Populated ${customs.length} custom entries, ${characters} characters.`;
+        return ["customs-populated", { animes: customs.length, characters }];
     }
 }

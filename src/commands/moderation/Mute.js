@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class MuteCommand extends Command {
     constructor(bot) {
         super(bot, "mute", {
-            description: "Mute a member.",
+            description: "mute-desc",
             permissions: ["manageRoles"],
             arguments: [
                 {
@@ -25,12 +25,9 @@ export default class MuteCommand extends Command {
         const result = await this.bot.modlogMute(msg.channel.guild, member, msg.author, reason, duration);
 
         if (!result) {
-            return {
-                status: "failed",
-                message: "Failed to mute user - check permissions and role setup."
-            };
+            return ["failed-perms", { op: ["mute"] }];
         }
 
-        return `Muted user ${member.username}.`;
+        return ["muted", { user: member.username }];
     }
 }

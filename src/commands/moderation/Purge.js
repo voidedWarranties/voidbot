@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class PurgeCommand extends Command {
     constructor(bot) {
         super(bot, "purge", {
-            description: "Purge messages",
+            description: "purge-desc",
             permissions: ["manageMessages"],
             arguments: [
                 {
@@ -42,17 +42,14 @@ export default class PurgeCommand extends Command {
                 }
             }, null, after ? after.id : null, reason);
 
-            const confirmation = await respond(`Purged ${purged} messages.`);
+            const confirmation = await respond(["purged", { count: purged }]);
             setTimeout(() => {
                 confirmation.delete();
             }, 5000);
         });
         
         if (!result) {
-            return {
-                status: "failed",
-                message: "Failed to purge messages - check permissions."
-            };
+            return ["failed-perms", { op: ["purge"] }];
         }
     }
 }

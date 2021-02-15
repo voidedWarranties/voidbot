@@ -15,26 +15,14 @@ export default class VoiceCommand extends Command {
         const channel = msg.member.voiceState.channelID;
 
         const existingStream = this.voice.getStream(msg.guildID);
-        if (!this.autoJoin && !existingStream) {
-            return {
-                status: "huh",
-                message: "The bot is not in voice!"
-            };
-        }
+        if (!this.autoJoin && !existingStream)
+            return ["voice-bot-not-in"];
 
-        if (!channel) {
-            return {
-                status: "huh",
-                message: "You are not in a voice channel!"
-            };
-        }
+        if (!channel)
+            return ["voice-user-not-in"];
 
-        if (existingStream && existingStream.connection.channelID !== channel) {
-            return {
-                status: "huh",
-                message: "You are not in the same channel as the bot!"
-            };
-        }
+        if (existingStream && existingStream.connection.channelID !== channel)
+            return ["voice-user-not-same"];
 
         if (this.autoJoin)
             await this.voice.join(msg.guildID, channel);

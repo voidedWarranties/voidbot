@@ -10,22 +10,18 @@ const rightArrow = "➡️";
 export default class ImageCommand extends Command {
     constructor(bot) {
         super(bot, "image", {
+            description: "image-desc",
             aliases: ["im"],
             category: "anime"
         });
     }
 
-    run(msg, args) {
-        if (args.length < 1) {
-            return {
-                status: "huh",
-                message: "Not enough arguments (expected a search query)."
-            };
-        }
+    run(msg, args, _, respond) {
+        if (args.length < 1) return ["image-missing-arg"];
 
         const query = args.join(" ");
         Character.find({ $text: { $search: query }, gender: "female" }, async (err, docs) => {
-            if (docs.length < 1) return msg.channel.createMessage("No results found");
+            if (docs.length < 1) return respond(["generic-no-results"]);
 
             docs[0] = await addPictures(docs[0]);
 

@@ -8,6 +8,7 @@ const client = new AniDb({ client: process.env.ANIDB_CLIENT, version: process.en
 export default class IndexCommand extends Command {
     constructor(bot) {
         super(bot, "index", {
+            description: "index-desc",
             ownerOnly: true,
             category: "anime"
         });
@@ -16,12 +17,8 @@ export default class IndexCommand extends Command {
     run(msg, args, _, respond) {
         const id = args[0];
 
-        if (isNaN(id)) {
-            return {
-                status: "huh",
-                message: "Expected an ID as an argument."
-            };
-        }
+        if (isNaN(id))
+            return ["index-invalid-arg"];
 
         const dir = path.join(__dirname, "../../../../cache");
         if (!fs.existsSync(dir)) {
@@ -31,19 +28,15 @@ export default class IndexCommand extends Command {
         const filePath = path.join(dir, `${id}.json`);
 
         if (fs.existsSync(filePath)) {
-            if (Date.now() - require(filePath).cacheDate <= 1000 * 60 * 60 * 24 * 7) {
-                return {
-                    status: "failed",
-                    message: "Cache data for this anime is still valid (<7 days)."
-                };
-            }
+            if (Date.now() - require(filePath).cacheDate <= 1000 * 60 * 60 * 24 * 7)
+                return ["index-cache-valid"];
         }
 
         client.anime(parseInt(id)).then(res => {
             const data = Object.assign(res, { cacheDate: Date.now() });
             fs.writeFileSync(filePath, JSON.stringify(data));
 
-            respond(`Indexed ID ${id}.`);
+            respond(["index-indexed", { id }]);
         });
     }
 }

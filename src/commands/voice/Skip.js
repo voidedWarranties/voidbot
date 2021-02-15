@@ -3,13 +3,13 @@ import VoiceCommand from "../../internals/VoiceCommand";
 export default class SkipCommand extends VoiceCommand {
     constructor(bot) {
         super(bot, "skip", {
-            description: "Skip the current track"
+            description: "skip-desc"
         }, false);
     }
 
     runVoice(ctx) {
         ctx.skip("music");
 
-        return "Skipped.";
+        return ["skip-skipped"];
     }
 }

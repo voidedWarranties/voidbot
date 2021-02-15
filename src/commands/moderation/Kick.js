@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class KickCommand extends Command {
     constructor(bot) {
         super(bot, "kick", {
-            description: "Kick a member.",
+            description: "kick-desc",
             permissions: ["kickMembers"],
             category: "moderation",
             arguments: [
@@ -22,12 +22,9 @@ export default class KickCommand extends Command {
         const result = await this.bot.modlogKick(msg.channel.guild, user, msg.author, reason);
 
         if (!result) {
-            return {
-                status: "failed",
-                message: "Failed to kick user - check permissions."
-            };
+            return ["failed-perms", { op: ["kick"] }];
         }
 
-        return `Kicked user ${user.username}.`;
+        return ["kicked", { user: user.username }];
     }
 }

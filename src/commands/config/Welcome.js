@@ -5,7 +5,7 @@ import Guild from "../../database/models/Guild";
 export default class WelcomeCommand extends Command {
     constructor(bot) {
         super(bot, "welcome", {
-            description: "Set the welcome message, channel, and type for this guild.",
+            description: ["config-set", { prop: ["config-welcome"] }],
             guildOnly: true,
             category: "config",
             subCommands: [
@@ -21,16 +21,10 @@ export default class WelcomeCommand extends Command {
         if (args[0] == "reset") {
             await Guild.unset(msg.guildID, "welcome");
 
-            return "Reset this guild's welcome configuration";
+            return ["welcome-reset"];
         }
 
-        return `**Use the following subcommands to configure the welcome message:**
-- reset: Reset all fields
-- channel: Provide a channel to send welcome messages to.
-- type: Set which type of welcome message should be used.
-- image: Set the image for the welcome message.
-- template: Set the template for the welcome message.
-        `;
+        await msg.channel.createMessage(this.bot.__("welcome-info").msg);
     }
 }
 
@@ -52,7 +46,7 @@ class TypeSubCommand extends ConfigCommand {
     }
     
     invalid() {
-        return "Invalid type, expected `text` or `image`";
+        return ["welcome-type-invalid"];
     }
 }
 

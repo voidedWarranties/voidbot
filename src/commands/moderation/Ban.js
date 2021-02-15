@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class BanCommand extends Command {
     constructor(bot) {
         super(bot, "ban", {
-            description: "Ban a member.",
+            description: "ban-desc",
             permissions: ["banMembers"],
             arguments: [
                 {
@@ -33,21 +33,15 @@ export default class BanCommand extends Command {
         const reason = args.join(" ");
 
         if (purge && purge < 0 || purge > 7) {
-            return {
-                status: "huh",
-                message: "Purge duration must be 0-7 days."
-            };
+            return ["purge-duration"];
         }
 
         const result = await this.bot.modlogBan(msg.channel.guild, user, msg.author, reason, duration, purge);
 
         if (!result) {
-            return {
-                status: "failed",
-                message: "Failed to ban user - check permissions."
-            };
+            return ["failed-perms", { op: ["ban"] }];
         }
 
-        return `Banned user ${user.username}.`;
+        return ["banned", { user: user.username }];
     }
 }

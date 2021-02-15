@@ -5,6 +5,7 @@ import { Command } from "karasu";
 export default class StatsCommand extends Command {
     constructor(bot) {
         super(bot, "stats", {
+            description: "stats-desc",
             category: "anime"
         });
     }
@@ -19,19 +20,18 @@ export default class StatsCommand extends Command {
         const animes = await Character.distinct("animes.title");
         const incompleteAnimes = await Character.getPendingAnimes();
 
-        await msg.channel.createMessage(`
-Characters with verified MAL page: ${done - noMAL}
-Characters with no MAL profile: ${noMAL}
-Characters awaiting verification: ${awaitingVerification}
-Characters needing MAL page: ${awaitingMAL}
+        await msg.channel.createMessage(this.bot.__("stats-response-complete", {
+            verified: done - noMAL,
+            none: noMAL,
+            awaiting: awaitingVerification,
+            missing: awaitingMAL,
+            total: animes.length
+        }).msg);
 
-Total animes indexed: ${animes.length}
-        `);
         if (incompleteAnimes.length > 0) {
-            await msg.channel.createMessage(`
-Animes with characters needing MAL pages:
-${incompleteAnimes.join("\n")}
-            `);
+            await msg.channel.createMessage(this.bot.__("stats-response-incomplete", {
+                incomplete: incompleteAnimes.join("\n")
+            }).msg);
         }
     }
 }

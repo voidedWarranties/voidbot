@@ -6,7 +6,7 @@ import { Constants } from "eris";
 export default class MutedRoleCommand extends ConfigCommand {
     constructor(bot) {
         super(bot, "mutedrole", {
-            description: "Set the muted role for this server.",
+            description: ["config-set", { prop: ["config-muted"] }],
             aliases: ["muted"],
             subCommands: [
                 new OverwriteSubCommand(bot)

@@ -3,13 +3,13 @@ import VoiceCommand from "../../internals/VoiceCommand";
 export default class RepeatCommand extends VoiceCommand {
     constructor(bot) {
         super(bot, "repeat", {
-            description: "Toggle repeat (single)"
+            description: "repeat-desc"
         }, false);
     }
 
     runVoice(ctx) {
         const isRepeat = ctx.toggleRepeat("music");
 
-        return `Repeat ${isRepeat ? "enabled" : "disabled"}.`;
+        return [isRepeat ? "repeat-enabled" : "repeat-disabled"];
     }
 }

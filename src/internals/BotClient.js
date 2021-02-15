@@ -8,6 +8,8 @@ import { addCase, actionTypes } from "./Modlog";
 import Guild from "../database/models/Guild";
 import ConnectionManager from "../internals/ConnectionManager";
 import { responseEmotes, responseColors } from "../util/ClientUtils";
+import { FluentBundle, FluentResource } from "@fluent/bundle";
+import fs from "fs-extra";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
@@ -21,6 +23,12 @@ export default class BotClient extends Client {
         this.jobDir = path.join(__dirname, "../jobs");
 
         this.agenda = agenda;
+
+        this.locales = {};
+        this.locale = "en-US";
+        this.fallbackLocale = "en-US";
+
+        this.loadLocales();
 
         this.agenda.on("fail", (err) => {
             log.error(`Job failed with error:\n${err.stack}`);
@@ -44,13 +52,70 @@ export default class BotClient extends Client {
         return responseEmotes[key];
     }
 
+    __(key, params, locale = this.locale) {
+        const finalParams = {};
+
+        if (params) {
+            for (const [k, value] of Object.entries(params)) {
+                if (typeof value === "object" && value.length) {
+                    const result = this.__(value[0], value[1], locale);
+                    finalParams[k] = result && result.msg;
+                    continue;
+                }
+
+                finalParams[k] = value;
+            }
+        }
+
+        // Reload locales constantly in development
+        if (this.extendedOptions.development)
+            this.loadLocales();
+
+        const bundle = this.locales[locale];
+        const message = bundle.getMessage(key) || this.locales[this.fallbackLocale].getMessage(key);
+
+        if (message && message.value) {
+            return {
+                msg: bundle.formatPattern(message.value, finalParams),
+                attributes: message.attributes
+            };
+        }
+
+        return { msg: `!! Missing Localization for key "${key}" !!` };
+    }
+
+    processDescription(desc) {
+        if (typeof desc === "object" && desc.length) {
+            return this.__(desc[0], desc[1]).msg;
+        }
+
+        return this.__(desc).msg;
+    }
+
     processCommandResponse(res) {
         const embed = {};
 
-        if (typeof res === "string") {
-            embed.description = `${this.getResponseEmote("success")} ${res}`;
-            embed.color = responseColors["success"];
-        } else {
+        if (typeof res === "object" && res.length) {
+            const message = res.shift();
+            const [params, overrides] = res;
+
+            const localized = this.__(message, params);
+            const localizedFallback = this.__(message, params, this.fallbackLocale);
+
+            if (localized) {
+                const attributes = Object.assign(localizedFallback.attributes || {}, localized.attributes || {});
+                const validAttributes = Object.values(attributes).every(a => typeof a === "string");
+
+                const status = overrides && overrides.status ||
+                    (validAttributes && attributes.status || "success");
+
+                const emote = overrides && overrides.emote ||
+                    (validAttributes && attributes.emote || this.getResponseEmote(status));
+
+                embed.description = `${emote} ${localized.msg}`;
+                embed.color = overrides && overrides.color || (validAttributes && localized.attributes.color ? parseInt(localized.attributes.color, 16) : responseColors[status]);
+            }
+        } else if (typeof res === "object") {
             const status = res.status || "success";
 
             embed.description = `${res.emote || this.getResponseEmote(status)} ${res.message}`;
@@ -58,6 +123,42 @@ export default class BotClient extends Client {
         }
 
         return { embed };
+    }
+
+    handleCommandFailed(ctx) {
+        switch (ctx.type) {
+        case "ownerOnly":
+            return ["owner-only"];
+
+        case "guildOnly":
+            return ["guild-only"];
+
+        case "missingPerms":
+            return ["missing-perms", { perms: ctx.info.join(", ") }];
+        }
+    }
+
+    loadLocales() {
+        const langPath = path.join(__dirname, "../lang");
+
+        const files = fs.readdirSync(langPath);
+
+        for (const file of files) {
+            const locale = file.split(".").slice(0, -1).join(".");
+
+            const bundle = new FluentBundle(locale);
+            const resource = new FluentResource(fs.readFileSync(path.join(langPath, file), "utf-8"));
+
+            const errors = bundle.addResource(resource);
+
+            for (const error of errors) {
+                log.error(error);
+            }
+
+            this.locales[locale] = bundle;
+
+            log.info(`Loaded locale ${locale} from ${file}`);
+        }
     }
 
     async loadJobs() {

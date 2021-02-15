@@ -3,7 +3,7 @@ import { Command } from "karasu";
 export default class UnbanCommand extends Command {
     constructor(bot) {
         super(bot, "unban", {
-            description: "Unban a member.",
+            description: "unban-desc",
             aliases: ["pardon"],
             permissions: ["banMembers"],
             category: "moderation",
@@ -12,12 +12,8 @@ export default class UnbanCommand extends Command {
     }
 
     run(msg, args, _, respond) {
-        if (args.length < 1) {
-            return {
-                status: "huh",
-                message: "Please provide a user to ban."
-            };
-        }
+        if (args.length < 1)
+            return ["unban-missing-arg"];
 
         msg.channel.guild.getBans().then(async bans => {
             const user = args.shift();
@@ -34,19 +30,12 @@ export default class UnbanCommand extends Command {
 
                 const result = await this.bot.modlogUnban(msg.channel.guild, userObj, msg.author, reason);
 
-                if (!result) {
-                    return respond({
-                        status: "failed",
-                        message: "Failed to unban user - check permissions."
-                    });
-                }
+                if (!result)
+                    return ["failed-perms", { op: ["unban"] }];
 
-                respond(`Unbanned ${ban.user.username}#${ban.user.discriminator}.`);
+                respond(["unbanned", `${ban.user.username}#${ban.user.discriminator}`]);
             } else {
-                respond({
-                    status: "huh",
-                    message: "That user doesn't exist or isn't banned!"
-                });
+                respond(["unban-not-found"]);
             }
         });
     }

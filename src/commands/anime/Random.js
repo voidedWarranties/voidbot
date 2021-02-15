@@ -5,6 +5,7 @@ import { createEmbed, addPictures } from "../../util/ClientUtils";
 export default class RandomCommand extends Command {
     constructor(bot) {
         super(bot, "random", {
+            description: "random-desc",
             category: "anime"
         });
     }

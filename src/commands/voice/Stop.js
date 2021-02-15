@@ -3,13 +3,13 @@ import VoiceCommand from "../../internals/VoiceCommand";
 export default class StopCommand extends VoiceCommand {
     constructor(bot) {
         super(bot, "stop", {
-            description: "Stop playback"
+            description: "stop-desc"
         }, false);
     }
 
     runVoice(ctx) {
         ctx.stop("music");
 
-        return "Stopped playback.";
+        return ["stop-stopped"];
     }
 }

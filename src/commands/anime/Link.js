@@ -7,6 +7,7 @@ import path from "path";
 export default class LinkCommand extends Command {
     constructor(bot) {
         super(bot, "link", {
+            description: "link-desc",
             subCommands: [
                 new VerifyCommand(bot),
                 new DumpCommand(bot),
@@ -17,21 +18,22 @@ export default class LinkCommand extends Command {
     }
 
     run() {
-        return `To link characters, visit ${process.env.HOST_URL}/crowdsource`;
+        return ["link-link", { url: `${process.env.HOST_URL}/crowdsource` }];
     }
 }
 
 class VerifyCommand extends Command {
     constructor(bot) {
         super(bot, "verify", {
+            description: "link-verify-desc",
             ownerOnly: true
         });
     }
 
-    async run(msg) {
+    async run(msg, _, __, respond) {
         for (; ;) {
             const submission = await Submission.random();
-            if (!submission) return "Reached end of backlog";
+            if (!submission) return ["link-empty-backlog"];
             const character = await Character.findOne({ anidb_id: submission.anidb_id });
 
             const user = this.bot.users.find(user => user.id === submission.user_id);
@@ -74,7 +76,7 @@ class VerifyCommand extends Command {
                 await Submission.findByIdAndDelete(submission._id);
 
                 const newDoc = await character.save();
-                msg.channel.createMessage(`${newDoc.name} has a MAL ID of ${newDoc.mal_id}`);
+                respond(["link-linked", { name: newDoc.name, id: newDoc.mal_id }]);
             } else {
                 break;
             }
@@ -87,6 +89,7 @@ const dumpFile = "../../../cache/dump.js";
 class DumpCommand extends Command {
     constructor(bot) {
         super(bot, "dump", {
+            description: "link-dump-desc",
             ownerOnly: true
         });
     }
@@ -98,13 +101,14 @@ class DumpCommand extends Command {
         const content = `export const links = ${JSON.stringify(links)};`;
         fs.writeFileSync(path.join(__dirname, dumpFile), content);
 
-        return `Wrote ${characters.length} characters to dump.`;
+        return ["link-dumped", { characters: characters.length }];
     }
 }
 
 class LoadCommand extends Command {
     constructor(bot) {
         super(bot, "load", {
+            description: "link-load-desc",
             ownerOnly: true
         });
     }
@@ -117,6 +121,6 @@ class LoadCommand extends Command {
             await Character.findOneAndUpdate({ anidb_id: link[0] }, { mal_id: link[1] });
         }
 
-        return `Linked ${links.length} characters from dump.`;
+        return ["link-loaded", { characters: links.length }];
     }
 }

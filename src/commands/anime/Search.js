@@ -5,6 +5,7 @@ import Anime from "../../database/models/Anime";
 export default class SearchCommand extends Command {
     constructor(bot) {
         super(bot, "search", {
+            description: "search-desc",
             subCommands: [
                 new IndexedCommand(bot)
             ],
@@ -13,23 +14,15 @@ export default class SearchCommand extends Command {
     }
 
     run(msg, args) {
-        if (args.length < 1) {
-            return {
-                status: "huh",
-                message: "Not enough arguments"
-            };
-        }
+        if (args.length < 1)
+            return ["search-missing-arg"];
 
         const query = args.join(" ");
 
         var results = index.search(query, {}).slice(0, 5);
 
-        if (results.length < 1) {
-            return {
-                status: "huh",
-                message: "No results found."
-            };
-        }
+        if (results.length < 1)
+            return ["generic-no-results"];
 
         results = results.map((r, idx) => {
             const titleObj = index.documentStore.getDoc(r.ref).titleObj;
@@ -72,27 +65,20 @@ function filterCasts(id, characters, cast) {
 class IndexedCommand extends Command {
     constructor(bot) {
         super(bot, "indexed", {
+            description: "search-indexed-desc",
             aliases: ["i"]
         });
     }
 
     async run(msg, args) {
-        if (args.length < 1) {
-            return {
-                status: "huh",
-                message: "Expected a search query."
-            };
-        }
+        if (args.length < 1)
+            return ["search-missing-arg"];
 
         const query = args.join(" ");
 
         const results = await Anime.find({ $text: { $search: query } }).populate("characters");
-        if (!results.length) {
-            return {
-                status: "huh",
-                message: "No results found."
-            };
-        }
+        if (!results.length)
+            return ["generic-no-results"];
 
         const result = results[0];
 

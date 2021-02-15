@@ -3,7 +3,7 @@ import VoiceCommand from "../../internals/VoiceCommand";
 export default class RepeatQueueCommand extends VoiceCommand {
     constructor(bot) {
         super(bot, "repeatqueue", {
-            description: "Toggle repeat (queue)",
+            description: "repeatqueue-desc",
             aliases: ["rq"]
         }, false);
     }
@@ -11,6 +11,6 @@ export default class RepeatQueueCommand extends VoiceCommand {
     runVoice(ctx) {
         const isRepeatQ = ctx.toggleRepeatQueue("music");
 
-        return `Queue repeat ${isRepeatQ ? "enabled" : "disabled"}.`;
+        return [isRepeatQ ? "repeatqueue-enabled" : "repeatqueue-disabled"];
     }
 }

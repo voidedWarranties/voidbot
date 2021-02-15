@@ -4,7 +4,7 @@ export default class RoleCommand extends Command {
     constructor(bot) {
         super(bot, "role", {
             aliases: ["roles"],
-            description: "Add or remove roles from a member.",
+            description: "role-desc",
             guildOnly: true,
             permissions: ["manageRoles"],
             arguments: [
@@ -47,7 +47,7 @@ export default class RoleCommand extends Command {
     async run(msg, args, { operation, members, roles }) {
         const reason = args.join(" ");
 
-        var output = "Performed operations:\n";
+        var output = this.bot.__("role-ops").msg + "\n";
         var permissionsFailed = false;
 
         for (const member of members) {
@@ -72,20 +72,20 @@ export default class RoleCommand extends Command {
                 if (!result && !permissionsFailed) {
                     permissionsFailed = true;
 
-                    output += "* Some operations could not be performed - check permissions.\n";
+                    output += this.bot.__("role-ops-failed").msg + "\n";
                 }
             }
 
             output += `- **${displayName}**: `;
 
             if (!rolesAffected.length) {
-                output += "Nothing changed\n";
+                output += this.bot.__("role-no-change").msg + "\n";
                 continue;
             }
 
             const affectedFormatted = rolesAffected.map(r => `\`${r}\``).join(", ");
 
-            output += operation === "remove" ? `Removed ${affectedFormatted}\n` : `Added ${affectedFormatted}\n`;
+            output += this.bot.__(operation === "remove" ? "remove-roles" : "add-roles", { roles: affectedFormatted }).msg + "\n";
         }
 
         return {
