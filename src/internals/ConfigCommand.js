@@ -61,41 +61,56 @@ export default class ConfigCommand extends Command {
     async runValue(guildID, operation, value) {
         switch (operation) {
         case "set":
-            if (!value) return `Expected a value of type ${this.argType}`;
+            if (!value) {
+                return {
+                    status: "huh",
+                    message: `Expected a value of type ${this.argType}.`
+                };
+            }
 
             await Guild.set(guildID, this.dbKey, value);
 
-            return `Set \`${this.dbKey}\` to ${value}`;
+            return `Set \`${this.dbKey}\` to ${value}.`;
 
         case "reset":
             await Guild.unset(guildID, this.dbKey);
 
-            return `Reset \`${this.dbKey}\``;
+            return `Reset \`${this.dbKey}\`.`;
         }
     }
 
     async runArray(guildID, operation, value) {
         switch (operation) {
         case "add": {
-            if (!value) return `Expected a value of type ${this.argType}`;
+            if (!value) {
+                return {
+                    status: "huh",
+                    message: `Expected a value of type ${this.argType}.`
+                };
+            }
 
             const doc = await Guild.push(guildID, this.dbKey, value);
 
-            return `Added \`${value}\` to \`${this.dbKey}\`, current values: ${this._arrayString(doc[this.dbKey])}`;
+            return `Added \`${value}\` to \`${this.dbKey}\`, current values: ${this._arrayString(doc[this.dbKey])}.`;
         }
 
         case "remove": {
-            if (!value) return `Expected a value of type ${this.argType}`;
+            if (!value) {
+                return {
+                    status: "huh",
+                    message: `Expected a value of type ${this.argType}.`
+                };
+            }
 
             const doc = await Guild.pull(guildID, this.dbKey, value);
 
-            return `Removed \`${value}\` from \`${this.dbKey}\`, current values: ${this._arrayString(doc[this.dbKey])}`;
+            return `Removed \`${value}\` from \`${this.dbKey}\`, current values: ${this._arrayString(doc[this.dbKey])}.`;
         }
 
         case "reset": {
             await Guild.unset(guildID, this.dbKey);
 
-            return `Reset \`${this.dbKey}\``;
+            return `Reset \`${this.dbKey}\`.`;
         }
         }
     }

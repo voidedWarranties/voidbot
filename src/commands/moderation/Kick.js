@@ -21,9 +21,13 @@ export default class KickCommand extends Command {
 
         const result = await this.bot.modlogKick(msg.channel.guild, user, msg.author, reason);
 
-        if (!result)
-            return "Failed to kick user - check permissions.";
+        if (!result) {
+            return {
+                status: "failed",
+                message: "Failed to kick user - check permissions."
+            };
+        }
 
-        return `Kicked user ${user.username}`;
+        return `Kicked user ${user.username}.`;
     }
 }

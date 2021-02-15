@@ -7,6 +7,7 @@ import startIPC from "./ipc";
 import { addCase, actionTypes } from "./Modlog";
 import Guild from "../database/models/Guild";
 import ConnectionManager from "../internals/ConnectionManager";
+import { responseEmotes, responseColors } from "../util/ClientUtils";
 
 export default class BotClient extends Client {
     constructor(token, options, commandOptions) {
@@ -37,6 +38,26 @@ export default class BotClient extends Client {
             this.loadJobs();
             startIPC(this);
         });
+    }
+
+    getResponseEmote(key) {
+        return responseEmotes[key];
+    }
+
+    processCommandResponse(res) {
+        const embed = {};
+
+        if (typeof res === "string") {
+            embed.description = `${this.getResponseEmote("success")} ${res}`;
+            embed.color = responseColors["success"];
+        } else {
+            const status = res.status || "success";
+
+            embed.description = `${res.emote || this.getResponseEmote(status)} ${res.message}`;
+            embed.color = res.color || responseColors[status];
+        }
+
+        return { embed };
     }
 
     async loadJobs() {

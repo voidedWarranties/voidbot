@@ -10,6 +10,6 @@ export default class RepeatCommand extends VoiceCommand {
     runVoice(ctx) {
         const isRepeat = ctx.toggleRepeat("music");
 
-        return `Repeat ${isRepeat ? "enabled" : "disabled"}`;
+        return `Repeat ${isRepeat ? "enabled" : "disabled"}.`;
     }
 }

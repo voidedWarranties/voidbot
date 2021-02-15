@@ -13,10 +13,15 @@ export default class IndexCommand extends Command {
         });
     }
 
-    run(msg, args) {
+    run(msg, args, _, respond) {
         const id = args[0];
 
-        if (isNaN(id)) return "Must search by ID";
+        if (isNaN(id)) {
+            return {
+                status: "huh",
+                message: "Expected an ID as an argument."
+            };
+        }
 
         const dir = path.join(__dirname, "../../../../cache");
         if (!fs.existsSync(dir)) {
@@ -27,7 +32,10 @@ export default class IndexCommand extends Command {
 
         if (fs.existsSync(filePath)) {
             if (Date.now() - require(filePath).cacheDate <= 1000 * 60 * 60 * 24 * 7) {
-                return "Cache data for this anime is still valid (<7 days)";
+                return {
+                    status: "failed",
+                    message: "Cache data for this anime is still valid (<7 days)."
+                };
             }
         }
 
@@ -35,7 +43,7 @@ export default class IndexCommand extends Command {
             const data = Object.assign(res, { cacheDate: Date.now() });
             fs.writeFileSync(filePath, JSON.stringify(data));
 
-            msg.channel.createMessage(`Cached ID ${id}`);
+            respond(`Indexed ID ${id}.`);
         });
     }
 }

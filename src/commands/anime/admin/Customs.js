@@ -46,6 +46,6 @@ export default class CustomsCommand extends Command {
             }, { upsert: true, new: true });
         }
 
-        return `Populated ${customs.length} custom entries, ${characters} characters`;
+        return `Populated ${customs.length} custom entries, ${characters} characters.`;
     }
 }

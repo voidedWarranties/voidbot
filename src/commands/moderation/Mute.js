@@ -24,9 +24,13 @@ export default class MuteCommand extends Command {
 
         const result = await this.bot.modlogMute(msg.channel.guild, member, msg.author, reason, duration);
 
-        if (!result)
-            return "Failed to mute user - check permissions and role setup";
+        if (!result) {
+            return {
+                status: "failed",
+                message: "Failed to mute user - check permissions and role setup."
+            };
+        }
 
-        return `Muted user ${member.username}`;
+        return `Muted user ${member.username}.`;
     }
 }

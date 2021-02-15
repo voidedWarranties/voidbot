@@ -93,7 +93,7 @@ export default class CacheDBCommand extends Command {
             }
         }
 
-        return `Populated ${changed} entries from cache`;
+        return `Populated ${changed} entries from cache.`;
     }
 }
 
@@ -113,6 +113,6 @@ class AnimesCommand extends Command {
             created++;
         }
 
-        msg.channel.createMessage(`Created ${created} entries`);
+        msg.channel.createMessage(`Created ${created} entries.`);
     }
 }

@@ -14,7 +14,10 @@ export default class SearchCommand extends Command {
 
     run(msg, args) {
         if (args.length < 1) {
-            return "Not enough arguments";
+            return {
+                status: "huh",
+                message: "Not enough arguments"
+            };
         }
 
         const query = args.join(" ");
@@ -22,7 +25,10 @@ export default class SearchCommand extends Command {
         var results = index.search(query, {}).slice(0, 5);
 
         if (results.length < 1) {
-            return "No results found";
+            return {
+                status: "huh",
+                message: "No results found."
+            };
         }
 
         results = results.map((r, idx) => {
@@ -32,9 +38,9 @@ export default class SearchCommand extends Command {
         });
 
 
-        msg.channel.createMessage(`
+        return `
 ${results.join("\n")}
-        `);
+        `;
     }
 }
 
@@ -71,13 +77,23 @@ class IndexedCommand extends Command {
     }
 
     async run(msg, args) {
-        if (args.length < 1) return "Not enough arguments";
+        if (args.length < 1) {
+            return {
+                status: "huh",
+                message: "Expected a search query."
+            };
+        }
 
         const query = args.join(" ");
 
         const results = await Anime.find({ $text: { $search: query } }).populate("characters");
-        if (!results.length) return "Nothing matches query";
-        
+        if (!results.length) {
+            return {
+                status: "huh",
+                message: "No results found."
+            };
+        }
+
         const result = results[0];
 
         const main = filterCasts(result.anidb_id, result.characters, "main character in");

@@ -1,6 +1,18 @@
 import { Jikan } from "node-myanimelist";
 import log from "../logger";
 
+export const responseEmotes = {
+    success: "✅",
+    failed: "❌",
+    huh: "❓"
+};
+
+export const responseColors = {
+    success: 0x32E577,
+    failed: 0xFF0000,
+    huh: 0x777777
+};
+
 export async function createEmbed(character, image = null) {
     if (image === null) image = Math.floor(Math.random() * character.photos.length);
     const picture = character.photos[image];

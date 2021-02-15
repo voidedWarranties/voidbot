@@ -10,6 +10,6 @@ export default class ShuffleCommand extends VoiceCommand {
     runVoice(ctx) {
         const isShuffling = ctx.toggleShuffle("music");
 
-        return `Shuffle ${isShuffling ? "enabled" : "disabled"}`;
+        return `Shuffle ${isShuffling ? "enabled" : "disabled"}.`;
     }
 }

@@ -10,6 +10,6 @@ export default class SkipCommand extends VoiceCommand {
     runVoice(ctx) {
         ctx.skip("music");
 
-        return "Skipped";
+        return "Skipped.";
     }
 }

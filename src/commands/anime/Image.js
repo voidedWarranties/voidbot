@@ -16,7 +16,12 @@ export default class ImageCommand extends Command {
     }
 
     run(msg, args) {
-        if (args.length < 1) return "Not enough arguments (expected a search query).";
+        if (args.length < 1) {
+            return {
+                status: "huh",
+                message: "Not enough arguments (expected a search query)."
+            };
+        }
 
         const query = args.join(" ");
         Character.find({ $text: { $search: query }, gender: "female" }, async (err, docs) => {

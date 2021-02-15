@@ -10,6 +10,6 @@ export default class StopCommand extends VoiceCommand {
     runVoice(ctx) {
         ctx.stop("music");
 
-        return "Stopped";
+        return "Stopped playback.";
     }
 }

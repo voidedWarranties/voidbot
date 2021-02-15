@@ -98,7 +98,7 @@ class DumpCommand extends Command {
         const content = `export const links = ${JSON.stringify(links)};`;
         fs.writeFileSync(path.join(__dirname, dumpFile), content);
 
-        return `Wrote ${characters.length} characters to dump`;
+        return `Wrote ${characters.length} characters to dump.`;
     }
 }
 
@@ -117,6 +117,6 @@ class LoadCommand extends Command {
             await Character.findOneAndUpdate({ anidb_id: link[0] }, { mal_id: link[1] });
         }
 
-        return `Linked ${links.length} characters from dump`;
+        return `Linked ${links.length} characters from dump.`;
     }
 }

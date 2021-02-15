@@ -10,6 +10,6 @@ export default class LeaveCommand extends VoiceCommand {
     runVoice(ctx) {
         ctx.disconnect();
 
-        return "Left the voice channel";
+        return "Left the voice channel.";
     }
 }

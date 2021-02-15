@@ -49,7 +49,7 @@ export default class MergeCommand extends Command {
             merged++;
         }
 
-        return `Ran ${merged} merges, deleting ${deleted} records`;
+        return `Ran ${merged} merges, deleting ${deleted} records.`;
     }
 }
 
@@ -105,7 +105,7 @@ ${docs.map(c => `${c.anidb_id} ${c.animes.map(a => a.title).join(", ")}`).join("
         }
 
         if (merges.length < 1) {
-            await msg.channel.createMessage("No duplicates found");
+            return "No duplicates found.";
         } else {
             await msg.channel.createMessage(message);
             await msg.channel.createMessage(`

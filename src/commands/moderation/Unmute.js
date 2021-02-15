@@ -19,9 +19,13 @@ export default class UnmuteCommand extends Command {
 
         const result = await this.bot.modlogUnmute(msg.channel.guild, member, msg.author, reason);
 
-        if (!result)
-            return "Failed to unmute user - check permissions - are they muted?";
+        if (!result) {
+            return {
+                status: "failed",
+                message: "Failed to unmute user - check permissions - are they muted?"
+            };
+        }
 
-        return `Unmuted user ${member.username}`;
+        return `Unmuted user ${member.username}.`;
     }
 }

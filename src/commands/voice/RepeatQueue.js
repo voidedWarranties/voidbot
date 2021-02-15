@@ -11,6 +11,6 @@ export default class RepeatQueueCommand extends VoiceCommand {
     runVoice(ctx) {
         const isRepeatQ = ctx.toggleRepeatQueue("music");
 
-        return `Queue repeat ${isRepeatQ ? "enabled" : "disabled"}`;
+        return `Queue repeat ${isRepeatQ ? "enabled" : "disabled"}.`;
     }
 }

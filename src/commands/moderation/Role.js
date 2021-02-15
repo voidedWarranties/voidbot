@@ -88,6 +88,9 @@ export default class RoleCommand extends Command {
             output += operation === "remove" ? `Removed ${affectedFormatted}\n` : `Added ${affectedFormatted}\n`;
         }
 
-        return output;
+        return {
+            status: permissionsFailed ? "huh" : "success",
+            message: output
+        };
     }
 }

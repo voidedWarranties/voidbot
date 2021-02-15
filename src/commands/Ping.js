@@ -10,6 +10,10 @@ export default class PingCommand extends Command {
     }
 
     run() {
-        return "Pong!";
+        return {
+            emote: "🏓",
+            message: "Pong!",
+            color: 0xEF4A4A
+        };
     }
 }
